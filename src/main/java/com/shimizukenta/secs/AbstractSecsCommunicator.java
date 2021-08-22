@@ -216,8 +216,10 @@ public abstract class AbstractSecsCommunicator implements SecsCommunicator {
 	private final BlockingQueue<SecsMessage> msgRecvQueue = new LinkedBlockingQueue<>();
 	
 	private void executeMsgRecvQueueTask() {
+		
 		executeLoopTask(() -> {
 			SecsMessage msg = msgRecvQueue.take();
+		
 			msgRecvListeners.forEach(l -> {l.received(msg);});
 		});
 	}
@@ -227,6 +229,7 @@ public abstract class AbstractSecsCommunicator implements SecsCommunicator {
 	}
 	
 	protected void notifyReceiveMessage(SecsMessage msg) {
+	
 		offerMsgRecvQueue(msg);
 	}
 	

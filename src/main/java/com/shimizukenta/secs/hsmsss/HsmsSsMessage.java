@@ -29,7 +29,7 @@ public class HsmsSsMessage extends AbstractSecsMessage {
 	private final byte[] head;
 	private final Secs2 body;
 	
-	protected HsmsSsMessage(byte[] head, Secs2 body) {
+	public HsmsSsMessage(byte[] head, Secs2 body) {
 		
 		Objects.requireNonNull(head);
 		Objects.requireNonNull(body);

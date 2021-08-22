@@ -605,7 +605,7 @@ public abstract class AbstractHsmsSsCommunicator extends AbstractSecsCommunicato
 			}
 		}
 		
-		protected void reading() throws InterruptedException {
+		public void reading() throws InterruptedException {
 			
 			final ByteBuffer lenBf = ByteBuffer.allocate(8);
 			final ByteBuffer headBf = ByteBuffer.allocate(10);
@@ -728,7 +728,6 @@ public abstract class AbstractHsmsSsCommunicator extends AbstractSecsCommunicato
 				} else {
 					
 					int r = f.get().intValue();
-					
 					if ( r < 0 ) {
 						throw new HsmsSsDetectTerminateException();
 					}

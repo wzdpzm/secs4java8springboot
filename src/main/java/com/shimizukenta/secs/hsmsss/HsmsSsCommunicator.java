@@ -7,6 +7,7 @@ import com.shimizukenta.secs.SecsCommunicator;
 import com.shimizukenta.secs.SecsException;
 import com.shimizukenta.secs.SecsSendMessageException;
 import com.shimizukenta.secs.SecsWaitReplyMessageException;
+import com.shimizukenta.secs.hsmsgs.AbstractHsmsGsRebindPassiveCommunicator;
 import com.shimizukenta.secs.secs2.Secs2;
 
 /**
@@ -36,7 +37,12 @@ public interface HsmsSsCommunicator extends SecsCommunicator {
 			
 			if ( config.rebindIfPassive().geZero() ) {
 				
-				return new AbstractHsmsSsRebindPassiveCommunicator(config) {};
+				if(!config.isEquip().get()) {
+					return new AbstractHsmsGsRebindPassiveCommunicator(config) {};
+				}else {
+					return new AbstractHsmsSsRebindPassiveCommunicator(config) {};
+				}
+				
 				
 			} else {
 				
