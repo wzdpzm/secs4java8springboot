@@ -64,7 +64,7 @@ public abstract class AbstractSecsMsgListener implements SecsMessageReceiveListe
 	 * @throws SecsException
 	 * @throws InterruptedException
 	 */
-	public static Optional<SecsMessage>  replay(HsmsSsCommunicator hsmsSsCommunicator , SecsMessage primary,  boolean wbit, Secs2 secs2) throws SecsSendMessageException, SecsWaitReplyMessageException, SecsException, InterruptedException {
+	public static Optional<SecsMessage>  reply(HsmsSsCommunicator hsmsSsCommunicator , SecsMessage primary,  boolean wbit, Secs2 secs2) throws SecsSendMessageException, SecsWaitReplyMessageException, SecsException, InterruptedException {
 		
 		return hsmsSsCommunicator.send(primary, primary.getStream(), primary.getFunction() + 1 , wbit, secs2);
 	}
@@ -82,7 +82,7 @@ public abstract class AbstractSecsMsgListener implements SecsMessageReceiveListe
 	 */
 	public  Optional<SecsMessage>  reply(SecsMessage primary,  boolean wbit, Secs2 secs2) throws SecsSendMessageException, SecsWaitReplyMessageException, SecsException, InterruptedException {
 		
-		return replay(hsmsSsCommunicator, primary, wbit, secs2);
+		return reply(hsmsSsCommunicator, primary, wbit, secs2);
 	}
 	
 	
@@ -97,7 +97,7 @@ public abstract class AbstractSecsMsgListener implements SecsMessageReceiveListe
      */
     public  Optional<SecsMessage>  reply(SecsMessage primary,  Secs2 secs2) throws SecsSendMessageException, SecsWaitReplyMessageException, SecsException, InterruptedException {
 		
-		return replay(hsmsSsCommunicator, primary, false, secs2);
+		return reply(hsmsSsCommunicator, primary, false, secs2);
 	}
 
 }
