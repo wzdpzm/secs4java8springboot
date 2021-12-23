@@ -8,9 +8,20 @@ import java.util.regex.Pattern;
 
 import com.shimizukenta.secs.ByteArrayProperty;
 import com.shimizukenta.secs.hsmsgs.AbstractHsmsGsRebindPassiveCommunicator;
+import com.shimizukenta.secs.hsmsss.HsmsSsMessage;
+import com.shimizukenta.secs.hsmsss.HsmsSsMessageType;
 
 public class SecsUtils {
 
+	/**随否是数据报文
+	 * @param msg
+	 * @return
+	 */
+	public static final boolean dataMessage( HsmsSsMessage msg) {
+		return HsmsSsMessageType.get(msg) == HsmsSsMessageType.DATA;
+	}
+	
+	
 	/**
 	 * 通过设备id 来获取请求头
 	 * 
