@@ -1,5 +1,6 @@
 package com.shimizukenta.secs.ext.config;
 
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -20,36 +21,60 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * 抽象消息接收者
- * 
+ *  SecsMessageReceiveListener 出现异常无法接收消息 , 具体原因后续排查
  * @author dsy
  *
  */
 @Slf4j
-public abstract class AbstractSecsMsgListener implements SecsMessageReceiveListener {
+public abstract class AbstractSecsMsgListener implements SecsMessageReceiveListener  {
 
 	public  static final String HANDLERS_STR = "HANDLERS";
 	
+	/**
+	 * 单会话通讯器
+	 */
 	@Lazy
 	@Autowired(required = false )
 	protected HsmsSsCommunicator hsmsSsCommunicator; 
 	
+	/**
+	 * 多会话预留
+	 */
+	@Lazy
+	@Autowired(required = false )
+	protected Map<String ,HsmsSsCommunicator> hsmsSsCommunicators; 
+	
+	
+	/**
+	 *  本类处理类暂存
+	 */
 	private final MultiKeyMap<Integer, Consumer<SecsMessage>> HANDLERS = new MultiKeyMap<>();
+	
+	
+	
 
+	/**
+	 * 当前消息派发器
+	 * 
+	 * @param event
+	 * @see com.shimizukenta.secs.SecsMessageReceiveListener#received(com.shimizukenta.secs.SecsMessage)
+	 */
 	@Override
 	public void received(SecsMessage event) {
 		
 		
 		log.debug("get_sf_data:" + event);
-
 		Consumer<SecsMessage> consumer = HANDLERS.get(event.getStream(), event.getFunction());
 		if (Objects.nonNull(consumer)) {
-			consumer.accept(event);
+			consumer.accept( event );
 		} else {
 			/**
 			 * 没有对应的处理类
 			 */
-			log.warn("received_ignore_msg:{}", event.toJson());
+			log.error("received_ignore_msg:{}", event.toJson());
 		}
+		
+
 
 	}
 

@@ -12,7 +12,6 @@ import java.nio.channels.CompletionHandler;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -64,6 +63,8 @@ import com.shimizukenta.secs.secs2.Secs2BytesParser;
 import com.shimizukenta.secs.secs2.Secs2Exception;
 import com.shimizukenta.secs.utils.SecsUtils;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * This abstract class is implementation of HSMS-SS-Passive-rebind Communicator(SEMI-E37.1).
  * 
@@ -74,6 +75,7 @@ import com.shimizukenta.secs.utils.SecsUtils;
  * @author kenta-shimizu
  *
  */
+@Slf4j
 public abstract class AbstractHsmsGsRebindPassiveCommunicator extends AbstractHsmsSsRebindPassiveCommunicator {
 	
 	public final static  Map<Integer,AbstractInnerConnection> selectedConnections =new ConcurrentHashMap<>();
@@ -202,10 +204,10 @@ public abstract class AbstractHsmsGsRebindPassiveCommunicator extends AbstractHs
 protected void completedAction(AsynchronousSocketChannel channel) throws InterruptedException {
 		
 		try {
-			System.out.println("gs-----------------gs-gs--------------");
-			System.out.println("gs-----------------gs-gs--------------");
-
-			System.out.println("gs-----------------gs-gs--------------");
+			
+			log.warn("gsSession==created ==>local:{}, remote:{}", channel.getLocalAddress(), channel.getRemoteAddress());
+			log.warn("gsSession==created ==>local:{}, remote:{}", channel.getLocalAddress(), channel.getRemoteAddress());
+			
 
 			final PassiveInnerConnection conn = new PassiveInnerConnection(channel);
 
@@ -230,7 +232,7 @@ protected void completedAction(AsynchronousSocketChannel channel) throws Interru
 			
 			this.executeInvokeAny(tasks);
 		}
-		catch ( ExecutionException e ) {
+		catch ( ExecutionException | IOException e ) {
 
 			Throwable t = e.getCause();
 

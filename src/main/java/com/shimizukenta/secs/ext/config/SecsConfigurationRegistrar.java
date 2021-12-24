@@ -14,11 +14,21 @@ public class SecsConfigurationRegistrar  implements ImportBeanDefinitionRegistra
 	@Override
 	public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
 		
-		 //使用beanDefinitionRegistry对象将EchoBeanPostProcessor注入至Spring容器中
-        BeanDefinitionBuilder beanDefinitionBuilder = BeanDefinitionBuilder.rootBeanDefinition(SecsAnnotationPostProcessor.class);
-     
-        registry.registerBeanDefinition(SecsAnnotationPostProcessor.class.getName(), beanDefinitionBuilder.getBeanDefinition());
+		    String name = SecsAnnotationPostProcessor.class.getName();
+		  
+		    boolean containsBeanDefinition = registry.containsBeanDefinition(name);
+		    if(!containsBeanDefinition) {
+		    	 //使用beanDefinitionRegistry对象将EchoBeanPostProcessor注入至Spring容器中
+		        BeanDefinitionBuilder beanDefinitionBuilder = BeanDefinitionBuilder.rootBeanDefinition(SecsAnnotationPostProcessor.class);
+		     
+		      
+		        
+				registry.registerBeanDefinition(name, beanDefinitionBuilder.getBeanDefinition());
+		    }
+			
 
+		
+		
 	}
 
 

@@ -1,18 +1,29 @@
 package com.shimizukenta.secs.utils;
 
+import java.net.InetSocketAddress;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.shimizukenta.secs.ByteArrayProperty;
+import com.shimizukenta.secs.ext.config.HsmsProps;
+import com.shimizukenta.secs.gem.ClockType;
 import com.shimizukenta.secs.hsmsgs.AbstractHsmsGsRebindPassiveCommunicator;
+import com.shimizukenta.secs.hsmsss.HsmsSsCommunicator;
+import com.shimizukenta.secs.hsmsss.HsmsSsCommunicatorConfig;
 import com.shimizukenta.secs.hsmsss.HsmsSsMessage;
 import com.shimizukenta.secs.hsmsss.HsmsSsMessageType;
+import com.shimizukenta.secs.hsmsss.HsmsSsProtocol;
 
 public class SecsUtils {
 
+	public final static Map<HsmsSsCommunicator, Boolean> CONNECTION_STATUS_FACTORY = new ConcurrentHashMap<>(16 );
+
+	
 	/**随否是数据报文
 	 * @param msg
 	 * @return
@@ -100,5 +111,54 @@ public class SecsUtils {
 		int deviceIdStrToInt = deviceIdStrToInt(machineId);
 		boolean contains = AbstractHsmsGsRebindPassiveCommunicator.deviceIdConnections.keySet().contains(deviceIdStrToInt);
 		return contains;
+	}
+	
+	
+	/** 配置属性转化为通讯器配置
+	 * @param props
+	 * @return
+	 */
+	public  final static HsmsSsCommunicatorConfig getConfig( HsmsProps props) {
+		HsmsSsCommunicatorConfig config = new HsmsSsCommunicatorConfig();
+		//测试使用
+		config.socketAddress(new InetSocketAddress(props.getHost(), props.getPort()));
+//		config.socketAddress(new InetSocketAddress(props.getHost(), props.getPort()));
+		config.protocol( HsmsSsProtocol.valueOf(props.getProtocol()));
+		
+//		config.sessionId(10);
+//		config.notLinktest();
+//		config.deviceId(props.getDeviceId());
+		config.isEquip(props.getIsEquip());
+		config.timeout().t3( props.getT3());
+		config.gem().mdln("MDLN-A");
+	    config.gem().softrev("000001");
+	    config.gem().clockType(ClockType.A16);
+		/**
+		 * T3 timeout 即Reply Timeout， 说具体点就是Data Message timeout. 这个最好理解， 就是HSMS 的会话双方，
+		 * 当一方发送消息后，等待对方回答的等待时间，即Response Time, 在规定时间内返回则会话成功， 如果没有在规定时间内返回， 则发送端SECS
+		 * Driver通常会产生T3 Time out Alarm 通知上层的业务逻辑程序处理错误. 一般 推荐时间一般是 45秒.
+		 */
+		config.timeout().t5(props.getT5());
+		config.timeout().t6(props.getT6());
+		config.timeout().t8(props.getT8());
+		return config;
+	}
+	
+	/** 判断当前通讯器是否存活
+	 * @param communicator
+	 * @return
+	 */
+	public static boolean isActiveConnection(HsmsSsCommunicator communicator) {
+		
+		return CONNECTION_STATUS_FACTORY.getOrDefault(communicator, false);
+	}
+	
+	
+	/** 获得存活的通讯器
+	 * @return
+	 */
+	public static Map<HsmsSsCommunicator, Boolean> getConnectionStatusFactory() {
+		
+		return CONNECTION_STATUS_FACTORY;
 	}
 }
