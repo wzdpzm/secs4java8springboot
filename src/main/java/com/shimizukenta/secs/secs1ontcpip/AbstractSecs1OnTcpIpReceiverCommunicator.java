@@ -17,11 +17,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import com.shimizukenta.secs.SecsException;
-import com.shimizukenta.secs.SecsSendMessageException;
 import com.shimizukenta.secs.secs1.AbstractSecs1Communicator;
-import com.shimizukenta.secs.secs1.Secs1DetectTerminateException;
-import com.shimizukenta.secs.secs1.Secs1SendMessageException;
+import com.shimizukenta.secs.secs1.Secs1SendByteException;
 
 public abstract class AbstractSecs1OnTcpIpReceiverCommunicator extends AbstractSecs1Communicator
 		implements Secs1OnTcpIpReceiverCommunicator {
@@ -38,9 +35,18 @@ public abstract class AbstractSecs1OnTcpIpReceiverCommunicator extends AbstractS
 	public void open() throws IOException {
 		super.open();
 		
-		this.executeLoopTask(() -> {
-			bind();
-			config.rebindSeconds().sleep();
+		this.executorService().execute(() -> {
+			try {
+				while ( ! this.isClosed() ) {
+					this.bind();
+					if ( this.isClosed() ) {
+						return;
+					}
+					config.rebindSeconds().sleep();
+				}
+			}
+			catch ( InterruptedException ignore ) {
+			}
 		});
 	}
 	
@@ -73,57 +79,64 @@ public abstract class AbstractSecs1OnTcpIpReceiverCommunicator extends AbstractS
 					server.accept(attachment, this);
 					
 					SocketAddress pLocal = null;
-					SocketAddress remote = null;
+					SocketAddress pRemote = null;
 					
 					try {
-						pLocal = channel.getLocalAddress();
-						remote = channel.getRemoteAddress();
-
-						addChannel(channel);
 						
-						notifyLog(Secs1OnTcpIpReceiverConnectionLog.accepted(pLocal, remote));
-						
-						final Collection<Callable<Void>> tasks = Arrays.asList(
-								() -> {
-									reading(channel);
-									return null;
-								});
-						
-						executeInvokeAny(tasks);
-						
-					}
-					catch ( IOException e ) {
-						notifyLog(e);
-					}
-					catch ( ExecutionException e ) {
-						
-						Throwable t = e.getCause();
-						
-						if ( t instanceof RuntimeException ) {
-							throw (RuntimeException)t;
+						try {
+							pLocal = channel.getLocalAddress();
+							pRemote = channel.getRemoteAddress();
+	
+							addChannel(channel);
+							
+							notifyLog(Secs1OnTcpIpReceiverConnectionLog.accepted(pLocal, pRemote));
+							
+							final Collection<Callable<Void>> tasks = Arrays.asList(
+									() -> {
+										reading(channel);
+										return null;
+									});
+							
+							executeInvokeAny(tasks);
+							
 						}
-						
-						notifyLog(e);
+						catch ( IOException e ) {
+							notifyLog(e);
+						}
+						catch ( ExecutionException e ) {
+							
+							Throwable t = e.getCause();
+							
+							if ( t instanceof RuntimeException ) {
+								throw (RuntimeException)t;
+							}
+							
+							notifyLog(t);
+						}
+						finally {
+							
+							removeChannel(channel);
+							
+							try {
+								channel.shutdownOutput();
+							}
+							catch ( IOException giveup ) {
+							}
+							
+							try {
+								channel.close();
+							}
+							catch ( IOException giveup ) {
+							}
+							
+							try {
+								notifyLog(Secs1OnTcpIpReceiverConnectionLog.channelClosed(pLocal, pRemote));
+							}
+							catch ( InterruptedException ignore ) {
+							}
+						}
 					}
 					catch ( InterruptedException ignore ) {
-					}
-					finally {
-						
-						removeChannel(channel);
-						
-						try {
-							channel.shutdownOutput();
-						}
-						catch ( IOException giveup ) {
-						}
-						
-						try {
-							channel.close();
-						}
-						catch ( IOException giveup ) {
-						}
-						
-						notifyLog(Secs1OnTcpIpReceiverConnectionLog.channelClosed(pLocal, remote));
 					}
 				}
 				
@@ -131,7 +144,11 @@ public abstract class AbstractSecs1OnTcpIpReceiverCommunicator extends AbstractS
 				public void failed(Throwable t, Void attachment) {
 					
 					if ( ! (t instanceof ClosedChannelException) ) {
-						notifyLog(t);
+						try {
+							notifyLog(t);
+						}
+						catch ( InterruptedException ignore ) {
+						}
 					}
 					
 					synchronized ( server ) {
@@ -164,7 +181,7 @@ public abstract class AbstractSecs1OnTcpIpReceiverCommunicator extends AbstractS
 				
 				((Buffer)buffer).clear();
 				
-				Future<Integer> f = channel.read(buffer);
+				final Future<Integer> f = channel.read(buffer);
 				
 				try {
 					int r = f.get().intValue();
@@ -227,8 +244,8 @@ public abstract class AbstractSecs1OnTcpIpReceiverCommunicator extends AbstractS
 	}
 	
 	@Override
-	protected void sendBytes(byte[] bs)
-			throws SecsSendMessageException, SecsException, InterruptedException {
+	public void sendBytes(byte[] bs)
+			throws Secs1SendByteException, InterruptedException {
 
 		final AsynchronousSocketChannel channel = getChannel();
 		
@@ -244,7 +261,7 @@ public abstract class AbstractSecs1OnTcpIpReceiverCommunicator extends AbstractS
 				int w = f.get().intValue();
 				
 				if ( w <= 0 ) {
-					throw new Secs1DetectTerminateException();
+					throw new Secs1OnTcpIpDetectTerminateException();
 				}
 			}
 			catch ( InterruptedException e ) {
@@ -259,7 +276,7 @@ public abstract class AbstractSecs1OnTcpIpReceiverCommunicator extends AbstractS
 					throw (RuntimeException)t;
 				}
 				
-				throw new Secs1SendMessageException(t);
+				throw new Secs1SendByteException(t);
 			}
 		}
 	}

@@ -9,7 +9,7 @@ This library is SEMI-SECS-communicate implementation on Java8.
 - SECS-I (SEMI-E4)
 - SECS-II (SEMI-E5)
 - GEM (SEMI-E30, partially)
-- HSMS-SS (SEMI-E37.1)
+- HSMS(SEMI-E37), HSMS-SS(SEMI-E37.1), HSMS-GS(SEMI-E37.2)
 - [SML (PEER Group)](https://www.peergroup.com/expertise/resources/secs-message-language/)
 
 ## Create Communicator instance and open
@@ -19,19 +19,20 @@ This library is SEMI-SECS-communicate implementation on Java8.
 ```java
     /* HSMS-SS-Passive open example */
     HsmsSsCommunicatorConfig config = new HsmsSsCommunicatorConfig();
-    config.protocol(HsmsSsProtocol.PASSIVE);
+    config.connectionMode(HsmsConnectionMode.PASSIVE);
     config.socketAddress(new InetSocketAddress("127.0.0.1", 5000));
     config.sessionId(10);
     config.isEquip(true);
     config.timeout().t3(45.0F);
     config.timeout().t6( 5.0F);
     config.timeout().t7(10.0F);
-    config.timeout().t8( 6.0F);
+    config.timeout().t8( 5.0F);
     config.gem().mdln("MDLN-A");
     config.gem().softrev("000001");
     config.gem().clockType(ClockType.A16);
 
-    SecsCommunicator passive = HsmsSsCommunicator.open(config);
+    SecsCommunicator passive = HsmsSsCommunicator.newInstance(config);
+    passive.open();
 ```
 
 - For use HSMS-SS-Active example
@@ -39,19 +40,24 @@ This library is SEMI-SECS-communicate implementation on Java8.
 ```java
     /* HSMS-SS-Active open example */
     HsmsSsCommunicatorConfig config = new HsmsSsCommunicatorConfig();
-    config.protocol(HsmsSsProtocol.ACTIVE);
+    config.connectionMode(HsmsConnectionMode.ACTIVE);
     config.socketAddress(new InetSocketAddress("127.0.0.1", 5000));
     config.sessionId(10);
     config.isEquip(false);
     config.timeout().t3(45.0F);
     config.timeout().t5(10.0F);
     config.timeout().t6( 5.0F);
-    config.timeout().t8( 6.0F);
+    config.timeout().t8( 5.0F);
     config.linktest(120.0F);
     config.gem().clockType(ClockType.A16);
 
-    SecsCommunicator active = HsmsSsCommunicator.open(config);
+    SecsCommunicator active = HsmsSsCommunicator.newInstance(config);
+    active.open();
 ```
+
+- For Use HSMS-GS
+
+  to [HSMS-GS README](/README-HSMS-GS.md)
 
 - For use SECS-I (onTcpIp) example
 
@@ -73,7 +79,8 @@ This library is SEMI-SECS-communicate implementation on Java8.
     config.retry(3);
     config.gem().clockType(ClockType.A16);
 
-    SecsCommunicator secs1 = Secs1OnTcpIpCommunicator.open(config);
+    SecsCommunicator secs1 = Secs1OnTcpIpCommunicator.newInstance(config);
+    secs1.open();
 ```
 
 - For use SECS-I (onTcpIp) Receiver example
@@ -96,7 +103,8 @@ This library is SEMI-SECS-communicate implementation on Java8.
     config.retry(3);
     config.gem().clockType(ClockType.A16);
 
-    SecsCommunicator secs1r = Secs1OnTcpIpReceiverCommunicator.open(config);
+    SecsCommunicator secs1r = Secs1OnTcpIpReceiverCommunicator.newInstance(config);
+    secs1r.open();
 ```
 
 How to convert TCP/IP <-> RS232C
@@ -181,6 +189,7 @@ See also ["/src/examples/example3/ExampleBuildSecs2.java"](/src/examples/example
 | getBigInteger |   |   |   | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | getFloat      |   |   |   | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | getDouble     |   |   |   | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| getNumber     | ✓ |   |   | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 
 
 See also ["/src/examples/example4/ExampleGetSecs2Value.java"](/src/examples/example4/ExampleGetSecs2Value.java)
@@ -201,7 +210,7 @@ See also ["/src/examples/example4/ExampleGetSecs2Value.java"](/src/examples/exam
 
 ## Detect Communicatable-state changed
 
-1. Add Listener
+- Add Listener
 
 ```java
     /* Add-Listener example */
@@ -217,6 +226,17 @@ See also ["/src/examples/example4/ExampleGetSecs2Value.java"](/src/examples/exam
 
 Notice: This listener is blocking-method. pass through quickly.
 
+- Waiting until communicate-state-changed
+
+```java
+    active.waitUntilCommunicatable();
+    active.waitUntilNotCommunicatable();
+
+    /* Open communicator and waiting until communicatable */
+    active.openAndWaitUntilCommunicatable();
+```
+
+Notice: This method is blocking-method.
 
 ## SML
 

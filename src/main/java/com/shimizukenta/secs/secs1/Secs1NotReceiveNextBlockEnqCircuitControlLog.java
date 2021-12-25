@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 
 public final class Secs1NotReceiveNextBlockEnqCircuitControlLog extends AbstractSecs1CircuitControlLog {
 	
-	private static final long serialVersionUID = 5993834362626837734L;
+	private static final long serialVersionUID = -5755187611477567224L;
 	
 	private final Secs1MessageBlock prevBlock;
 	private final byte recv;
@@ -14,7 +14,7 @@ public final class Secs1NotReceiveNextBlockEnqCircuitControlLog extends Abstract
 		this.prevBlock = block;
 		this.recv = recv;
 	}
-
+	
 	private Secs1NotReceiveNextBlockEnqCircuitControlLog(CharSequence subject, Secs1MessageBlock block, byte recv) {
 		super(subject, block);
 		this.prevBlock = block;

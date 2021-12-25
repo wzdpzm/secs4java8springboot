@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 
 public final class Secs1NotReceiveAckCircuitControlLog extends AbstractSecs1CircuitControlLog {
 	
-	private static final long serialVersionUID = -1656663043471994893L;
+	private static final long serialVersionUID = -8457413995945058147L;
 	
 	private final Secs1MessageBlock block;
 	private final byte recv;

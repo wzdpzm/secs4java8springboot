@@ -212,7 +212,7 @@ public class PairSecs1 {
 			
 			Thread.sleep(100L);
 			
-			equip.openAndWaitUntilCommunicating();
+			equip.openAndWaitUntilCommunicatable();
 			
 			final int m = testCycle;
 			
@@ -330,7 +330,6 @@ public class PairSecs1 {
 		echo("Throwables: " + tt.size());
 		
 		echo("elapsed: " + (end - start) + " milli-sec.");
-		
 	}
 	
 	private static synchronized void echo(Object o) {

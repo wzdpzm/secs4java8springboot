@@ -3,10 +3,6 @@ package com.shimizukenta.secs.secs1;
 import java.util.Optional;
 
 import com.shimizukenta.secs.SecsCommunicator;
-import com.shimizukenta.secs.SecsException;
-import com.shimizukenta.secs.SecsSendMessageException;
-import com.shimizukenta.secs.SecsWaitReplyMessageException;
-import com.shimizukenta.secs.secs2.Secs2;
 
 /**
  * This interface is implementation of SECS-I (SEMI-E4).
@@ -17,42 +13,73 @@ import com.shimizukenta.secs.secs2.Secs2;
 public interface Secs1Communicator extends SecsCommunicator {
 	
 	/**
-	 * Create header-only Sesc1Message.
-	 * 
-	 * @param header header-10-bytes
-	 * @return Secs1Message
-	 */
-	public Secs1Message createSecs1Message(byte[] header);
-	
-	/**
-	 * Create Secs1Message.
-	 * 
-	 * @param header header-10-bytes
-	 * @param body SECS-II data
-	 * @return Secs1Message
-	 */
-	public Secs1Message createSecs1Message(byte[] header, Secs2 body);
-	
-	/**
 	 * Send SECS-I-Message.
 	 * 
 	 * <p>
-	 * Send Primary-Secs1Message,<br />
+	 * Send Secs1Message,<br />
 	 * Blocking-method.<br />
 	 * Wait until sended Primay-Message and Reply-Secs1Message received if exist.
 	 * </p>
 	 * 
 	 * @param msg
 	 * @return reply-Secs1Message if exist
-	 * @throws SecsSendMessageException
-	 * @throws SecsWaitReplyMessageException
-	 * @throws SecsException
+	 * @throws Secs1SendMessageException
+	 * @throws Secs1WaitReplyMessageException
+	 * @throws Secs1Exception
 	 * @throws InterruptedException
 	 */
 	public Optional<Secs1Message> send(Secs1Message msg)
-			throws SecsSendMessageException,
-			SecsWaitReplyMessageException,
-			SecsException,
+			throws Secs1SendMessageException,
+			Secs1WaitReplyMessageException,
+			Secs1Exception,
 			InterruptedException;
-
+	
+	/**
+	 * Add listener.
+	 * 
+	 * @param lstnr
+	 * @return true if add success
+	 */
+	public boolean addTrySendSecs1MessagePassThroughListener(Secs1MessagePassThroughListener lstnr);
+	
+	/**
+	 * Remove listener.
+	 * 
+	 * @param lstnr
+	 * @return true if remove success
+	 */
+	public boolean removeTrySendSecs1MessagePassThroughListener(Secs1MessagePassThroughListener lstnr);
+	
+	/**
+	 * Add listener.
+	 * 
+	 * @param lstnr
+	 * @return true if add success
+	 */
+	public boolean addSendedSecs1MessagePassThroughListener(Secs1MessagePassThroughListener lstnr);
+	
+	/**
+	 * Remove listener.
+	 * 
+	 * @param lstnr
+	 * @return true if remove success
+	 */
+	public boolean removeSendedSecs1MessagePassThroughListener(Secs1MessagePassThroughListener lstnr);
+	
+	/**
+	 * Add listener.
+	 * 
+	 * @param lstnr
+	 * @return true if add success
+	 */
+	public boolean addReceiveSecs1MessagePassThroughListener(Secs1MessagePassThroughListener lstnr);
+	
+	/**
+	 * Remove listener.
+	 * 
+	 * @param lstnr
+	 * @return true if remove success
+	 */
+	public boolean removeReceiveSecs1MessagePassThroughListener(Secs1MessagePassThroughListener lstnr);
+	
 }

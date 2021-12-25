@@ -6,7 +6,6 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.shimizukenta.secs.AbstractSecsCommunicator;
-import com.shimizukenta.secs.SecsCommunicator;
 import com.shimizukenta.secs.SecsException;
 import com.shimizukenta.secs.SecsMessage;
 import com.shimizukenta.secs.SecsSendMessageException;
@@ -17,7 +16,7 @@ import com.shimizukenta.secs.secs2.Secs2Item;
 
 public abstract class AbstractGem implements Gem {
 
-	private final SecsCommunicator comm;
+	private final AbstractSecsCommunicator comm;
 	private final AbstractGemConfig config;
 	
 	public AbstractGem(AbstractSecsCommunicator communicator, AbstractGemConfig config) {

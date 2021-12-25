@@ -2,14 +2,12 @@ package com.shimizukenta.secs;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Callable;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -24,120 +22,39 @@ import com.shimizukenta.secs.sml.SmlMessage;
  * @author kenta-shimizu
  *
  */
-public abstract class AbstractSecsCommunicator implements SecsCommunicator {
+public abstract class AbstractSecsCommunicator extends AbstractBaseCommunicator implements SecsCommunicator {
 	
-	private final ExecutorService execServ = Executors.newCachedThreadPool(r -> {
-		Thread th = new Thread(r);
-		th.setDaemon(true);
-		return th;
-	});
-	
-	protected ExecutorService executorService() {
-		return execServ;
-	}
-	
-	protected static Runnable createLoopTask(InterruptableRunnable task) {
-		return new Runnable() {
-			@Override
-			public void run() {
-				try {
-					for ( ;; ) {
-						task.run();
-					}
-				}
-				catch ( InterruptedException ignore ) {
-				}
-			}
-		};
-	}
-	
-	protected void executeLoopTask(InterruptableRunnable r) {
-		execServ.execute(createLoopTask(r));
-	}
-	
-	protected <T> T executeInvokeAny(Collection<? extends Callable<T>> tasks)
-			throws InterruptedException, ExecutionException{
-		return execServ.invokeAny(tasks);
-	}
-	
-	protected <T> T executeInvokeAny(Collection<? extends Callable<T>> tasks, ReadOnlyTimeProperty timeout)
-			throws InterruptedException, ExecutionException, TimeoutException {
-		return execServ.invokeAny(tasks, timeout.getMilliSeconds(), TimeUnit.MILLISECONDS);
-	}
-	
+	private final BooleanProperty communicatable = BooleanProperty.newInstance(false);
 	
 	private final AbstractSecsCommunicatorConfig config;
 	private final Gem gem;
 	
-	private boolean opened;
-	private boolean closed;
-	
 	public AbstractSecsCommunicator(AbstractSecsCommunicatorConfig config) {
+		super();
 		
 		this.config = config;
 		this.gem = Gem.newInstance(this, config.gem());
-		
-		opened = false;
-		closed = false;
 	}
 	
-	@Override
-	public boolean isOpen() {
-		synchronized ( this ) {
-			return this.opened && ! this.closed;
-		}
-	}
-	
-	@Override
-	public boolean isClosed() {
-		synchronized ( this ) {
-			return this.closed;
-		}
-	}
+	private final Object syncOpen = new Object();
 	
 	@Override
 	public void open() throws IOException {
 		
-		synchronized ( this ) {
-			
-			if ( this.closed ) {
-				throw new IOException("Already closed");
-			}
-			
-			if ( this.opened ) {
-				throw new IOException("Already opened");
-			}
-			
-			this.opened = true;
+		synchronized ( this.syncOpen ) {
+			super.open();
 		}
 		
-		executeLogQueueTask();
-		executeMsgRecvQueueTask();
-		executeTrySendMsgPassThroughQueueTask();
-		executeSendedMsgPassThroughQueueTask();
-		executeRecvMsgPassThroughQueueTask();
+		this.executeLogQueueTask();
+		this.executeMsgRecvQueueTask();
+		this.executeTrySendMsgPassThroughQueueTask();
+		this.executeSendedMsgPassThroughQueueTask();
+		this.executeRecvMsgPassThroughQueueTask();
 	}
 	
 	@Override
 	public void close() throws IOException {
-		
-		synchronized ( this ) {
-			
-			if ( this.closed ) {
-				return ;
-			}
-			
-			this.closed = true;
-		}
-		
-		try {
-			execServ.shutdownNow();
-			if (! execServ.awaitTermination(5L, TimeUnit.SECONDS)) {
-				throw new IOException("ExecutorService#shutdown failed");
-			}
-		}
-		catch ( InterruptedException ignore ) {
-		}
+		super.close();
 	}
 	
 	@Override
@@ -146,41 +63,107 @@ public abstract class AbstractSecsCommunicator implements SecsCommunicator {
 	}
 	
 	@Override
-	public int deviceId() {
-		return config.deviceId().intValue();
-	}
-	
-	@Override
 	public boolean isEquip() {
 		return config.isEquip().booleanValue();
 	}
 	
 	@Override
-	public void openAndWaitUntilCommunicating() throws IOException, InterruptedException {
-		
-		synchronized ( this ) {
-			if ( ! isOpen() ) {
-				open();
+	public boolean isCommunicatable() {
+		return this.communicatable.booleanValue();
+	}
+	
+	@Override
+	public void waitUntilCommunicatable() throws InterruptedException {
+		this.communicatable.waitUntilTrue();
+	}
+	
+	@Override
+	public void waitUntilCommunicatable(long timeout, TimeUnit unit) throws InterruptedException, TimeoutException {
+		this.communicatable.waitUntilTrue(timeout, unit);
+	}
+	
+	@Override
+	public void waitUntilCommunicatable(ReadOnlyTimeProperty tp) throws InterruptedException, TimeoutException {
+		this.communicatable.waitUntilTrue(tp);
+	}
+	
+	@Override
+	public void waitUntilNotCommunicatable() throws InterruptedException {
+		this.communicatable.waitUntilFalse();
+	}
+	
+	@Override
+	public void waitUntilNotCommunicatable(long timeout, TimeUnit unit) throws InterruptedException, TimeoutException {
+		this.communicatable.waitUntilFalse(timeout, unit);
+	}
+	
+	@Override
+	public void waitUntilNotCommunicatable(ReadOnlyTimeProperty tp) throws InterruptedException, TimeoutException {
+		this.communicatable.waitUntilFalse(tp);
+	}
+	
+	@Override
+	public void openAndWaitUntilCommunicatable() throws IOException, InterruptedException {
+		this.openIfNotOpen();
+		this.waitUntilCommunicatable();
+	}
+	
+	@Override
+	public void openAndWaitUntilCommunicatable(long timeout, TimeUnit unit) throws IOException, InterruptedException, TimeoutException {
+		this.openIfNotOpen();
+		this.waitUntilCommunicatable(timeout, unit);
+	}
+	
+	@Override
+	public void openAndWaitUntilCommunicatable(ReadOnlyTimeProperty tp) throws IOException, InterruptedException, TimeoutException {
+		this.openIfNotOpen();
+		this.waitUntilCommunicatable(tp);
+	}
+	
+	private void openIfNotOpen() throws IOException {
+		synchronized ( this.syncOpen ) {
+			if ( ! this.isOpen() ) {
+				this.open();
 			}
 		}
-		
-		communicatable.waitUntilTrue();
 	}
+	
+	abstract public Optional<SecsMessage> templateSend(int strm, int func, boolean wbit, Secs2 secs2)
+			throws SecsSendMessageException, SecsWaitReplyMessageException, SecsException, InterruptedException;
+	
+	abstract public Optional<SecsMessage> templateSend(SecsMessage primaryMsg, int strm, int func, boolean wbit, Secs2 secs2)
+			throws SecsSendMessageException, SecsWaitReplyMessageException, SecsException, InterruptedException;
 	
 	@Override
 	public Optional<SecsMessage> send(int strm, int func, boolean wbit)
 			throws SecsSendMessageException, SecsWaitReplyMessageException, SecsException
 			, InterruptedException {
 		
-		return send(strm, func, wbit, Secs2.empty());
+		return templateSend(strm, func, wbit, Secs2.empty());
 	}
 	
 	@Override
-	public Optional<SecsMessage> send(SecsMessage primary, int strm, int func, boolean wbit)
+	public Optional<SecsMessage> send(int strm, int func, boolean wbit, Secs2 secs2)
 			throws SecsSendMessageException, SecsWaitReplyMessageException, SecsException
 			, InterruptedException {
 		
-		return send(primary, strm, func, wbit, Secs2.empty());
+		return templateSend(strm, func, wbit, secs2);
+	}
+	
+	@Override
+	public Optional<SecsMessage> send(SecsMessage primaryMsg, int strm, int func, boolean wbit)
+			throws SecsSendMessageException, SecsWaitReplyMessageException, SecsException
+			, InterruptedException {
+		
+		return templateSend(primaryMsg, strm, func, wbit, Secs2.empty());
+	}
+	
+	@Override
+	public Optional<SecsMessage> send(SecsMessage primaryMsg, int strm, int func, boolean wbit, Secs2 secs2)
+			throws SecsSendMessageException, SecsWaitReplyMessageException, SecsException
+			, InterruptedException {
+		
+		return templateSend(primaryMsg, strm, func, wbit, secs2);
 	}
 	
 	@Override
@@ -188,15 +171,15 @@ public abstract class AbstractSecsCommunicator implements SecsCommunicator {
 			throws SecsSendMessageException, SecsWaitReplyMessageException, SecsException
 			, InterruptedException {
 		
-		return send(sml.getStream(), sml.getFunction(), sml.wbit(), sml.secs2());
+		return templateSend(sml.getStream(), sml.getFunction(), sml.wbit(), sml.secs2());
 	}
 	
 	@Override
-	public Optional<SecsMessage> send(SecsMessage primary, SmlMessage sml)
+	public Optional<SecsMessage> send(SecsMessage primaryMsg, SmlMessage sml)
 			throws SecsSendMessageException, SecsWaitReplyMessageException, SecsException
 			, InterruptedException {
 		
-		return send(primary, sml.getStream(), sml.getFunction(), sml.wbit(), sml.secs2());
+		return templateSend(primaryMsg, sml.getStream(), sml.getFunction(), sml.wbit(), sml.secs2());
 	}
 	
 	
@@ -213,24 +196,34 @@ public abstract class AbstractSecsCommunicator implements SecsCommunicator {
 		return msgRecvListeners.remove(Objects.requireNonNull(l));
 	}
 	
+	private final Collection<SecsMessageReceiveBiListener> msgRecvBiListeners = new CopyOnWriteArrayList<>();
+	
+	@Override
+	public boolean addSecsMessageReceiveListener(SecsMessageReceiveBiListener l) {
+		return msgRecvBiListeners.add(Objects.requireNonNull(l));
+	}
+	
+	@Override
+	public boolean removeSecsMessageReceiveListener(SecsMessageReceiveBiListener l) {
+		return msgRecvBiListeners.remove(Objects.requireNonNull(l));
+	}
+	
 	private final BlockingQueue<SecsMessage> msgRecvQueue = new LinkedBlockingQueue<>();
 	
 	private void executeMsgRecvQueueTask() {
-		
 		executeLoopTask(() -> {
 			SecsMessage msg = msgRecvQueue.take();
-		
-			msgRecvListeners.forEach(l -> {l.received(msg);});
+			msgRecvListeners.forEach(l -> {
+				l.received(msg);
+			});
+			msgRecvBiListeners.forEach(l -> {
+				l.received(msg, this);
+			});
 		});
 	}
 	
-	protected final boolean offerMsgRecvQueue(SecsMessage msg) {
-		return msgRecvQueue.offer(msg);
-	}
-	
-	protected void notifyReceiveMessage(SecsMessage msg) {
-	
-		offerMsgRecvQueue(msg);
+	public void notifyReceiveMessage(AbstractSecsMessage msg) throws InterruptedException {
+		msgRecvQueue.put(msg);
 	}
 	
 	
@@ -247,7 +240,7 @@ public abstract class AbstractSecsCommunicator implements SecsCommunicator {
 		return logListeners.remove(Objects.requireNonNull(l));
 	}
 	
-	private final BlockingQueue<SecsLog> logQueue = new LinkedBlockingQueue<>();
+	private final BlockingQueue<AbstractSecsLog> logQueue = new LinkedBlockingQueue<>();
 	
 	private void executeLogQueueTask() {
 		
@@ -255,7 +248,7 @@ public abstract class AbstractSecsCommunicator implements SecsCommunicator {
 			
 			try {
 				for ( ;; ) {
-					final SecsLog log = logQueue.take();
+					final AbstractSecsLog log = this.logQueue.take();
 					logListeners.forEach(l -> {
 						l.received(log);
 					});
@@ -267,7 +260,7 @@ public abstract class AbstractSecsCommunicator implements SecsCommunicator {
 			try {
 				for ( ;; ) {
 					
-					final SecsLog log = logQueue.poll(100L, TimeUnit.MILLISECONDS);
+					final AbstractSecsLog log = this.logQueue.poll(100L, TimeUnit.MILLISECONDS);
 					if ( log == null ) {
 						break;
 					}
@@ -281,18 +274,14 @@ public abstract class AbstractSecsCommunicator implements SecsCommunicator {
 		});
 	}
 	
-	protected final boolean offerLogQueue(AbstractSecsLog log) {
-		return logQueue.offer(log);
-	}
-	
-	protected void notifyLog(AbstractSecsLog log) {
+	public void notifyLog(AbstractSecsLog log) throws InterruptedException {
 		log.subjectHeader(this.config.logSubjectHeader().get());
-		offerLogQueue(log);
+		this.logQueue.put(log);
 	}
 	
-	protected void notifyLog(Throwable t) {
+	public void notifyLog(Throwable t) throws InterruptedException {
 		
-		notifyLog(new AbstractSecsThrowableLog(t) {
+		this.notifyLog(new AbstractSecsThrowableLog(t) {
 			
 			private static final long serialVersionUID = -1271705310309086030L;
 		});
@@ -300,7 +289,6 @@ public abstract class AbstractSecsCommunicator implements SecsCommunicator {
 	
 	
 	/* Secs-Communicatable-State-Changed-Listener */
-	private final BooleanProperty communicatable = BooleanProperty.newInstance(false);
 	
 	@Override
 	public boolean addSecsCommunicatableStateChangeListener(SecsCommunicatableStateChangeListener l) {
@@ -312,8 +300,34 @@ public abstract class AbstractSecsCommunicator implements SecsCommunicator {
 		return this.communicatable.removeChangeListener(l::changed);
 	}
 	
-	protected void notifyCommunicatableStateChange(boolean communicatable) {
-		this.communicatable.set(communicatable);
+	private final Map<SecsCommunicatableStateChangeBiListener, SecsCommunicatableStateChangeListener> biCommStateMap = new HashMap<>();
+	
+	@Override
+	public boolean addSecsCommunicatableStateChangeListener(SecsCommunicatableStateChangeBiListener l) {
+		
+		final SecsCommunicatableStateChangeListener x = f -> {
+			l.changed(f, this);
+		};
+		
+		synchronized ( this.biCommStateMap ) {
+			this.biCommStateMap.put(l, x);
+			return this.communicatable.addChangeListener(x::changed);
+		}
+	}
+	
+	@Override
+	public boolean removeSecsCommunicatableStateChangeListener(SecsCommunicatableStateChangeBiListener l) {
+		synchronized ( this.biCommStateMap ) {
+			final SecsCommunicatableStateChangeListener x = this.biCommStateMap.remove(l);
+			if ( x != null ) {
+				return this.communicatable.removeChangeListener(x::changed);
+			}
+			return false;
+		}
+	}
+	
+	public void notifyCommunicatableStateChange(boolean f) {
+		this.communicatable.set(f);
 	}
 	
 	
@@ -322,29 +336,25 @@ public abstract class AbstractSecsCommunicator implements SecsCommunicator {
 	
 	@Override
 	public boolean addTrySendMessagePassThroughListener(SecsMessagePassThroughListener l) {
-		return trySendMsgPassThroughListeners.add(Objects.requireNonNull(l));
+		return this.trySendMsgPassThroughListeners.add(Objects.requireNonNull(l));
 	}
 	
 	@Override
 	public boolean removeTrySendMessagePassThroughListener(SecsMessagePassThroughListener l) {
-		return trySendMsgPassThroughListeners.remove(Objects.requireNonNull(l));
+		return this.trySendMsgPassThroughListeners.remove(Objects.requireNonNull(l));
 	}
 	
 	private BlockingQueue<SecsMessage> trySendMsgPassThroughQueue = new LinkedBlockingQueue<>();
 	
 	private void executeTrySendMsgPassThroughQueueTask() {
 		executeLoopTask(() -> {
-			SecsMessage msg = trySendMsgPassThroughQueue.take();
-			trySendMsgPassThroughListeners.forEach(l -> {l.passThrough(msg);});
+			SecsMessage msg = this.trySendMsgPassThroughQueue.take();
+			this.trySendMsgPassThroughListeners.forEach(l -> {l.passThrough(msg);});
 		});
 	}
 	
-	protected final boolean offerTrySendMsgPassThroughQueue(SecsMessage msg) {
-		return trySendMsgPassThroughQueue.offer(msg);
-	}
-	
-	protected void notifyTrySendMessagePassThrough(SecsMessage msg) {
-		offerTrySendMsgPassThroughQueue(msg);
+	public void notifyTrySendMessagePassThrough(SecsMessage msg) throws InterruptedException {
+		this.trySendMsgPassThroughQueue.put(msg);
 	}
 	
 	
@@ -353,60 +363,51 @@ public abstract class AbstractSecsCommunicator implements SecsCommunicator {
 	
 	@Override
 	public boolean addSendedMessagePassThroughListener(SecsMessagePassThroughListener l) {
-		return sendedMsgPassThroughListeners.add(Objects.requireNonNull(l));
+		return this.sendedMsgPassThroughListeners.add(Objects.requireNonNull(l));
 	}
 	
 	@Override
 	public boolean removeSendedMessagePassThroughListener(SecsMessagePassThroughListener l) {
-		return sendedMsgPassThroughListeners.remove(Objects.requireNonNull(l));
+		return this.sendedMsgPassThroughListeners.remove(Objects.requireNonNull(l));
 	}
 	
 	private final BlockingQueue<SecsMessage> sendedMsgPassThroughQueue = new LinkedBlockingQueue<>();
 	
 	private void executeSendedMsgPassThroughQueueTask() {
 		executeLoopTask(() -> {
-			SecsMessage msg = sendedMsgPassThroughQueue.take();
-			sendedMsgPassThroughListeners.forEach(l -> {l.passThrough(msg);});
+			SecsMessage msg = this.sendedMsgPassThroughQueue.take();
+			this.sendedMsgPassThroughListeners.forEach(l -> {l.passThrough(msg);});
 		});
 	}
 	
-	protected final boolean offerSendedMsgPassThroughQueue(SecsMessage msg) {
-		return sendedMsgPassThroughQueue.offer(msg);
+	public void notifySendedMessagePassThrough(SecsMessage msg) throws InterruptedException {
+		this.sendedMsgPassThroughQueue.put(msg);
 	}
-	
-	protected void notifySendedMessagePassThrough(SecsMessage msg) {
-		offerSendedMsgPassThroughQueue(msg);
-	}
-	
 	
 	/* Receive Secs-Message Pass-through Listener */
 	private final Collection<SecsMessagePassThroughListener> recvMsgPassThroughListeners = new CopyOnWriteArrayList<>();
 	
 	@Override
 	public boolean addReceiveMessagePassThroughListener(SecsMessagePassThroughListener l) {
-		return recvMsgPassThroughListeners.add(Objects.requireNonNull(l));
+		return this.recvMsgPassThroughListeners.add(Objects.requireNonNull(l));
 	}
 	
 	@Override
 	public boolean removeReceiveMessagePassThroughListener(SecsMessagePassThroughListener l) {
-		return recvMsgPassThroughListeners.remove(Objects.requireNonNull(l));
+		return this.recvMsgPassThroughListeners.remove(Objects.requireNonNull(l));
 	}
 	
 	private final BlockingQueue<SecsMessage> recvMsgPassThroughQueue = new LinkedBlockingQueue<>();
 	
 	private void executeRecvMsgPassThroughQueueTask() {
 		executeLoopTask(() -> {
-			SecsMessage msg = recvMsgPassThroughQueue.take();
-			recvMsgPassThroughListeners.forEach(l -> {l.passThrough(msg);});
+			SecsMessage msg = this.recvMsgPassThroughQueue.take();
+			this.recvMsgPassThroughListeners.forEach(l -> {l.passThrough(msg);});
 		});
 	}
 	
-	protected final boolean offerRecvMsgPassThroughQueue(SecsMessage msg) {
-		return recvMsgPassThroughQueue.offer(msg);
-	}
-	
-	protected void notifyReceiveMessagePassThrough(SecsMessage msg) {
-		offerRecvMsgPassThroughQueue(msg);
+	public void notifyReceiveMessagePassThrough(SecsMessage msg) throws InterruptedException {
+		this.recvMsgPassThroughQueue.put(msg);
 	}
 	
 }

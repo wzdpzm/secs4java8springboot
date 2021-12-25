@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 
 public final class Secs1TimeoutT4CircuitControlLog extends AbstractSecs1CircuitControlLog {
 	
-	private static final long serialVersionUID = 7197523896225091784L;
+	private static final long serialVersionUID = 1624501190541595887L;
 	
 	private final Secs1MessageBlock prevBlock;
 	

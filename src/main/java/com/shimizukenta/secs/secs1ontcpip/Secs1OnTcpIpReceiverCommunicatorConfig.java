@@ -7,19 +7,19 @@ import com.shimizukenta.secs.ReadOnlySocketAddressProperty;
 import com.shimizukenta.secs.ReadOnlyTimeProperty;
 import com.shimizukenta.secs.SocketAddressProperty;
 import com.shimizukenta.secs.TimeProperty;
-import com.shimizukenta.secs.secs1.Secs1CommunicatorConfig;
+import com.shimizukenta.secs.secs1.AbstractSecs1CommunicatorConfig;
 
 /**
- * This class is SECS-I-on-TCP/IP-Receiver-Communicator config.
+ * This class is config of SECS-I-on-TCP/IP-Receiver-Communicator.
  * 
- * <p>
- * To set Bind SocketAddress, {@link #socketAddress(SocketAddress)}<br />
- * </p>
+ * <ul>
+ * <li>To set Bind SocketAddress, {@link #socketAddress(SocketAddress)}</li>
+ * </ul>
  * 
  * @author kenta-shimizu
  *
  */
-public class Secs1OnTcpIpReceiverCommunicatorConfig extends Secs1CommunicatorConfig {
+public class Secs1OnTcpIpReceiverCommunicatorConfig extends AbstractSecs1CommunicatorConfig {
 	
 	private static final long serialVersionUID = 6842392464950831424L;
 	

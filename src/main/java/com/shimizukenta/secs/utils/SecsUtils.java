@@ -12,12 +12,12 @@ import java.util.regex.Pattern;
 import com.shimizukenta.secs.ByteArrayProperty;
 import com.shimizukenta.secs.ext.config.HsmsProps;
 import com.shimizukenta.secs.gem.ClockType;
-import com.shimizukenta.secs.hsmsgs.AbstractHsmsGsRebindPassiveCommunicator;
+import com.shimizukenta.secs.hsms.HsmsMessage;
+import com.shimizukenta.secs.hsms.HsmsMessageType;
 import com.shimizukenta.secs.hsmsss.HsmsSsCommunicator;
 import com.shimizukenta.secs.hsmsss.HsmsSsCommunicatorConfig;
-import com.shimizukenta.secs.hsmsss.HsmsSsMessage;
-import com.shimizukenta.secs.hsmsss.HsmsSsMessageType;
 import com.shimizukenta.secs.hsmsss.HsmsSsProtocol;
+
 
 public class SecsUtils {
 
@@ -28,8 +28,8 @@ public class SecsUtils {
 	 * @param msg
 	 * @return
 	 */
-	public static final boolean dataMessage( HsmsSsMessage msg) {
-		return HsmsSsMessageType.get(msg) == HsmsSsMessageType.DATA;
+	public static final boolean dataMessage( HsmsMessage msg) {
+		return HsmsMessageType.get(msg) == HsmsMessageType.DATA;
 	}
 	
 	
@@ -103,15 +103,7 @@ public class SecsUtils {
 
 	}
 
-	/** 当前机台是否连接成功
-	 * @param machineId
-	 * @return
-	 */
-	public static boolean isActiveConnection(String machineId) {
-		int deviceIdStrToInt = deviceIdStrToInt(machineId);
-		boolean contains = AbstractHsmsGsRebindPassiveCommunicator.deviceIdConnections.keySet().contains(deviceIdStrToInt);
-		return contains;
-	}
+
 	
 	
 	/** 配置属性转化为通讯器配置

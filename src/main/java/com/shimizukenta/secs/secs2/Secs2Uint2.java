@@ -26,11 +26,11 @@ public class Secs2Uint2 extends Secs2BigInteger {
 		super(values);
 	}
 
-	protected Secs2Uint2(List<? extends Number> values) {
+	public Secs2Uint2(List<? extends Number> values) {
 		super(values);
 	}
 
-	protected Secs2Uint2(byte[] bs) {
+	public Secs2Uint2(byte[] bs) {
 		super(bs);
 	}
 

@@ -6,7 +6,7 @@ import com.shimizukenta.secs.AbstractSecsLog;
 
 public class Secs1TrySendMessageBlockLog extends AbstractSecsLog {
 	
-	private static final long serialVersionUID = 4225688599771181812L;
+	private static final long serialVersionUID = 8170410360421962375L;
 	
 	private static final String commonSubject = "Try-Send SECS1-Message-Block";
 	

@@ -159,8 +159,18 @@ public interface Secs2 extends Iterable<Secs2> {
 	 * @return (double)value
 	 * @throws Secs2Exception if parse failed
 	 */
-	public double getDouble( int... indices1 ) throws Secs2Exception;
+	public double getDouble( int... indices ) throws Secs2Exception;
 
+	/**
+	 * Returns nested Numeric-value by indices,
+	 * Available if type is "I1","I2","I4","I8","F4","F8","U1","U2","U4","U8"
+	 * 
+	 * @param indices
+	 * @return (Number)value
+	 * @throws Secs2Exception if parse failed
+	 */
+	public Number getNumber( int... indices ) throws Secs2Exception;
+	
 	
 	/* builder */
 	
@@ -170,7 +180,7 @@ public interface Secs2 extends Iterable<Secs2> {
 	 * @return Secs2Builder.getInstance()
 	 */
 	public static Secs2Builder getBuilder() {
-		return Secs2Builder.getInstance();
+		return Secs2Builders.getInstance();
 	}
 	
 	/**
@@ -179,7 +189,7 @@ public interface Secs2 extends Iterable<Secs2> {
 	 * @return Empty-Secs2
 	 */
 	public static Secs2RawBytes empty() {
-		return getBuilder().empty();
+		return Secs2Builders.empty();
 	}
 	
 	/**
@@ -189,7 +199,7 @@ public interface Secs2 extends Iterable<Secs2> {
 	 * @return Secs2RawBytes
 	 */
 	public static Secs2RawBytes raw(byte[] bs) {
-		return getBuilder().raw(bs);
+		return Secs2Builders.raw(bs);
 	}
 	
 	/**
@@ -198,7 +208,7 @@ public interface Secs2 extends Iterable<Secs2> {
 	 * @return &lt;L[0] &gt;
 	 */
 	public static Secs2List list() {
-		return getBuilder().list();
+		return Secs2Builders.list();
 	}
 	
 	/**
@@ -208,7 +218,7 @@ public interface Secs2 extends Iterable<Secs2> {
 	 * @return &lt;L[n] values&gt;
 	 */
 	public static Secs2List list(Secs2... values) {
-		return getBuilder().list(values);
+		return Secs2Builders.list(values);
 	}
 	
 	/**
@@ -218,7 +228,7 @@ public interface Secs2 extends Iterable<Secs2> {
 	 * @return &lt;L[n] values&gt;
 	 */
 	public static Secs2List list(List<? extends Secs2> values) {
-		return getBuilder().list(values);
+		return Secs2Builders.list(values);
 	}
 	
 	/**
@@ -228,7 +238,7 @@ public interface Secs2 extends Iterable<Secs2> {
 	 * @return &lt;A[n] "ascii"&gt;
 	 */
 	public static Secs2Ascii ascii(CharSequence ascii) {
-		return getBuilder().ascii(ascii);
+		return Secs2Builders.ascii(ascii);
 	}
 	
 	/**
@@ -237,7 +247,7 @@ public interface Secs2 extends Iterable<Secs2> {
 	 * @return &lt;B[0] &gt;
 	 */
 	public static Secs2Binary binary() {
-		return getBuilder().binary();
+		return Secs2Builders.binary();
 	}
 	
 	/**
@@ -247,7 +257,7 @@ public interface Secs2 extends Iterable<Secs2> {
 	 * @return &lt;B[n] bs&gt;
 	 */
 	public static Secs2Binary binary(byte... bs) {
-		return getBuilder().binary(bs);
+		return Secs2Builders.binary(bs);
 	}
 	
 	/**
@@ -257,7 +267,7 @@ public interface Secs2 extends Iterable<Secs2> {
 	 * @return &lt;B[n] bs&gt;
 	 */
 	public static Secs2Binary binary(List<Byte> bs) {
-		return getBuilder().binary(bs);
+		return Secs2Builders.binary(bs);
 	}
 	
 	/**
@@ -265,8 +275,8 @@ public interface Secs2 extends Iterable<Secs2> {
 	 * 
 	 * @return &lt;BOOLEAN[0] &gt;
 	 */
-	public static AbstractSecs2 bool() {
-		return getBuilder().bool();
+	public static Secs2Boolean bool() {
+		return Secs2Builders.bool();
 	}
 	
 	/**
@@ -276,7 +286,7 @@ public interface Secs2 extends Iterable<Secs2> {
 	 * @return &lt;BOOLEAN[n] bools&gt;
 	 */
 	public static Secs2Boolean bool(boolean... bools) {
-		return getBuilder().bool(bools);
+		return Secs2Builders.bool(bools);
 	}
 	
 	/**
@@ -286,7 +296,7 @@ public interface Secs2 extends Iterable<Secs2> {
 	 * @return &lt;BOOLEAN[n] bools&gt;
 	 */
 	public static Secs2Boolean bool(List<Boolean> bools) {
-		return getBuilder().bool(bools);
+		return Secs2Builders.bool(bools);
 	}
 	
 	/**
@@ -295,7 +305,7 @@ public interface Secs2 extends Iterable<Secs2> {
 	 * @return &lt;I1[0] &gt;
 	 */
 	public static Secs2Int1 int1() {
-		return getBuilder().int1();
+		return Secs2Builders.int1();
 	}
 	
 	/**
@@ -305,7 +315,7 @@ public interface Secs2 extends Iterable<Secs2> {
 	 * @return &lt;I1[n] values&gt;
 	 */
 	public static Secs2Int1 int1(int... values) {
-		return getBuilder().int1(values);
+		return Secs2Builders.int1(values);
 	}
 	
 	/**
@@ -315,7 +325,7 @@ public interface Secs2 extends Iterable<Secs2> {
 	 * @return &lt;I1[n] values&gt;
 	 */
 	public static Secs2Int1 int1(long... values) {
-		return getBuilder().int1(values);
+		return Secs2Builders.int1(values);
 	}
 	
 	/**
@@ -325,7 +335,7 @@ public interface Secs2 extends Iterable<Secs2> {
 	 * @return &lt;I1[n] values&gt;
 	 */
 	public static Secs2Int1 int1(BigInteger... values) {
-		return getBuilder().int1(values);
+		return Secs2Builders.int1(values);
 	}
 	
 	/**
@@ -335,7 +345,7 @@ public interface Secs2 extends Iterable<Secs2> {
 	 * @return &lt;I1[n] values&gt;
 	 */
 	public static Secs2Int1 int1(List<? extends Number> values) {
-		return getBuilder().int1(values);
+		return Secs2Builders.int1(values);
 	}
 	
 	/**
@@ -344,7 +354,7 @@ public interface Secs2 extends Iterable<Secs2> {
 	 * @return &lt;I2[0] &gt;
 	 */
 	public static Secs2Int2 int2() {
-		return getBuilder().int2();
+		return Secs2Builders.int2();
 	}
 	
 	/**
@@ -354,7 +364,7 @@ public interface Secs2 extends Iterable<Secs2> {
 	 * @return &lt;I2[n] values&gt;
 	 */
 	public static Secs2Int2 int2(int... values) {
-		return getBuilder().int2(values);
+		return Secs2Builders.int2(values);
 	}
 	
 	/**
@@ -364,7 +374,7 @@ public interface Secs2 extends Iterable<Secs2> {
 	 * @return &lt;I2[n] values&gt;
 	 */
 	public static Secs2Int2 int2(long... values) {
-		return getBuilder().int2(values);
+		return Secs2Builders.int2(values);
 	}
 	
 	/**
@@ -374,7 +384,7 @@ public interface Secs2 extends Iterable<Secs2> {
 	 * @return &lt;I2[n] values&gt;
 	 */
 	public static Secs2Int2 int2(BigInteger... values) {
-		return getBuilder().int2(values);
+		return Secs2Builders.int2(values);
 	}
 	
 	/**
@@ -384,7 +394,7 @@ public interface Secs2 extends Iterable<Secs2> {
 	 * @return &lt;I2[n] values&gt;
 	 */
 	public static Secs2Int2 int2(List<? extends Number> values) {
-		return getBuilder().int2(values);
+		return Secs2Builders.int2(values);
 	}
 	
 	/**
@@ -393,7 +403,7 @@ public interface Secs2 extends Iterable<Secs2> {
 	 * @return &lt;I4[0] &gt;
 	 */
 	public static Secs2Int4 int4() {
-		return getBuilder().int4();
+		return Secs2Builders.int4();
 	}
 	
 	/**
@@ -403,7 +413,7 @@ public interface Secs2 extends Iterable<Secs2> {
 	 * @return &lt;I4[n] values&gt;
 	 */
 	public static Secs2Int4 int4(int... values) {
-		return getBuilder().int4(values);
+		return Secs2Builders.int4(values);
 	}
 	
 	/**
@@ -413,7 +423,7 @@ public interface Secs2 extends Iterable<Secs2> {
 	 * @return &lt;I4[n] values&gt;
 	 */
 	public static Secs2Int4 int4(long... values) {
-		return getBuilder().int4(values);
+		return Secs2Builders.int4(values);
 	}
 	
 	/**
@@ -423,7 +433,7 @@ public interface Secs2 extends Iterable<Secs2> {
 	 * @return &lt;I4[n] values&gt;
 	 */
 	public static Secs2Int4 int4(BigInteger... values) {
-		return getBuilder().int4(values);
+		return Secs2Builders.int4(values);
 	}
 	
 	/**
@@ -433,7 +443,7 @@ public interface Secs2 extends Iterable<Secs2> {
 	 * @return &lt;I4[n] values&gt;
 	 */
 	public static Secs2Int4 int4(List<? extends Number> values) {
-		return getBuilder().int4(values);
+		return Secs2Builders.int4(values);
 	}
 	
 	/**
@@ -442,7 +452,7 @@ public interface Secs2 extends Iterable<Secs2> {
 	 * @return &lt;I8[0] &gt;
 	 */
 	public static Secs2Int8 int8() {
-		return getBuilder().int8();
+		return Secs2Builders.int8();
 	}
 	
 	/**
@@ -452,7 +462,7 @@ public interface Secs2 extends Iterable<Secs2> {
 	 * @return &lt;I8[n] values&gt;
 	 */
 	public static Secs2Int8 int8(int... values) {
-		return getBuilder().int8(values);
+		return Secs2Builders.int8(values);
 	}
 	
 	/**
@@ -462,7 +472,7 @@ public interface Secs2 extends Iterable<Secs2> {
 	 * @return &lt;I8[n] values&gt;
 	 */
 	public static Secs2Int8 int8(long... values) {
-		return getBuilder().int8(values);
+		return Secs2Builders.int8(values);
 	}
 	
 	/**
@@ -472,7 +482,7 @@ public interface Secs2 extends Iterable<Secs2> {
 	 * @return &lt;I8[n] values&gt;
 	 */
 	public static Secs2Int8 int8(BigInteger... values) {
-		return getBuilder().int8(values);
+		return Secs2Builders.int8(values);
 	}
 	
 	/**
@@ -482,7 +492,7 @@ public interface Secs2 extends Iterable<Secs2> {
 	 * @return &lt;I8[n] values&gt;
 	 */
 	public static Secs2Int8 int8(List<? extends Number> values) {
-		return getBuilder().int8(values);
+		return Secs2Builders.int8(values);
 	}
 	
 	/**
@@ -491,7 +501,7 @@ public interface Secs2 extends Iterable<Secs2> {
 	 * @return &lt;U1[0] &gt;
 	 */
 	public static Secs2Uint1 uint1() {
-		return getBuilder().uint1();
+		return Secs2Builders.uint1();
 	}
 	
 	/**
@@ -501,7 +511,7 @@ public interface Secs2 extends Iterable<Secs2> {
 	 * @return &lt;U1[n] values&gt;
 	 */
 	public static Secs2Uint1 uint1(int... values) {
-		return getBuilder().uint1(values);
+		return Secs2Builders.uint1(values);
 	}
 	
 	/**
@@ -511,7 +521,7 @@ public interface Secs2 extends Iterable<Secs2> {
 	 * @return &lt;U1[n] values&gt;
 	 */
 	public static Secs2Uint1 uint1(long... values) {
-		return getBuilder().uint1(values);
+		return Secs2Builders.uint1(values);
 	}
 	
 	/**
@@ -521,7 +531,7 @@ public interface Secs2 extends Iterable<Secs2> {
 	 * @return &lt;U1[n] values&gt;
 	 */
 	public static Secs2Uint1 uint1(BigInteger... values) {
-		return getBuilder().uint1(values);
+		return Secs2Builders.uint1(values);
 	}
 	
 	/**
@@ -531,7 +541,7 @@ public interface Secs2 extends Iterable<Secs2> {
 	 * @return &lt;U1[n] values&gt;
 	 */
 	public static Secs2Uint1 uint1(List<? extends Number> values) {
-		return getBuilder().uint1(values);
+		return Secs2Builders.uint1(values);
 	}
 	
 	/**
@@ -540,7 +550,7 @@ public interface Secs2 extends Iterable<Secs2> {
 	 * @return &lt;U2[0] &gt;
 	 */
 	public static Secs2Uint2 uint2() {
-		return getBuilder().uint2();
+		return Secs2Builders.uint2();
 	}
 	
 	/**
@@ -550,7 +560,7 @@ public interface Secs2 extends Iterable<Secs2> {
 	 * @return &lt;U2[n] values&gt;
 	 */
 	public static Secs2Uint2 uint2(int... values) {
-		return getBuilder().uint2(values);
+		return Secs2Builders.uint2(values);
 	}
 	
 	/**
@@ -560,7 +570,7 @@ public interface Secs2 extends Iterable<Secs2> {
 	 * @return &lt;U2[n] values&gt;
 	 */
 	public static Secs2Uint2 uint2(long... values) {
-		return getBuilder().uint2(values);
+		return Secs2Builders.uint2(values);
 	}
 	
 	/**
@@ -570,7 +580,7 @@ public interface Secs2 extends Iterable<Secs2> {
 	 * @return &lt;U2[n] values&gt;
 	 */
 	public static Secs2Uint2 uint2(BigInteger... values) {
-		return getBuilder().uint2(values);
+		return Secs2Builders.uint2(values);
 	}
 	
 	/**
@@ -580,7 +590,7 @@ public interface Secs2 extends Iterable<Secs2> {
 	 * @return &lt;U2[n] values&gt;
 	 */
 	public static Secs2Uint2 uint2(List<? extends Number> values) {
-		return getBuilder().uint2(values);
+		return Secs2Builders.uint2(values);
 	}
 	
 	/**
@@ -589,7 +599,7 @@ public interface Secs2 extends Iterable<Secs2> {
 	 * @return &lt;U4[0] &gt;
 	 */
 	public static Secs2Uint4 uint4() {
-		return getBuilder().uint4();
+		return Secs2Builders.uint4();
 	}
 	
 	/**
@@ -599,7 +609,7 @@ public interface Secs2 extends Iterable<Secs2> {
 	 * @return &lt;U4[n] values&gt;
 	 */
 	public static Secs2Uint4 uint4(int... values) {
-		return getBuilder().uint4(values);
+		return Secs2Builders.uint4(values);
 	}
 	
 	/**
@@ -609,7 +619,7 @@ public interface Secs2 extends Iterable<Secs2> {
 	 * @return &lt;U4[n] values&gt;
 	 */
 	public static Secs2Uint4 uint4(long... values) {
-		return getBuilder().uint4(values);
+		return Secs2Builders.uint4(values);
 	}
 	
 	/**
@@ -619,7 +629,7 @@ public interface Secs2 extends Iterable<Secs2> {
 	 * @return &lt;U4[n] values&gt;
 	 */
 	public static Secs2Uint4 uint4(BigInteger... values) {
-		return getBuilder().uint4(values);
+		return Secs2Builders.uint4(values);
 	}
 	
 	/**
@@ -629,7 +639,7 @@ public interface Secs2 extends Iterable<Secs2> {
 	 * @return &lt;U4[n] values&gt;
 	 */
 	public static Secs2Uint4 uint4(List<? extends Number> values) {
-		return getBuilder().uint4(values);
+		return Secs2Builders.uint4(values);
 	}
 	
 	/**
@@ -638,7 +648,7 @@ public interface Secs2 extends Iterable<Secs2> {
 	 * @return &lt;U8[0] &gt;
 	 */
 	public static Secs2Uint8 uint8() {
-		return getBuilder().uint8();
+		return Secs2Builders.uint8();
 	}
 	
 	/**
@@ -648,7 +658,7 @@ public interface Secs2 extends Iterable<Secs2> {
 	 * @return &lt;U8[n] values&gt;
 	 */
 	public static Secs2Uint8 uint8(int... values) {
-		return getBuilder().uint8(values);
+		return Secs2Builders.uint8(values);
 	}
 	
 	/**
@@ -658,7 +668,7 @@ public interface Secs2 extends Iterable<Secs2> {
 	 * @return &lt;U8[n] values&gt;
 	 */
 	public static Secs2Uint8 uint8(long... values) {
-		return getBuilder().uint8(values);
+		return Secs2Builders.uint8(values);
 	}
 	
 	/**
@@ -668,7 +678,7 @@ public interface Secs2 extends Iterable<Secs2> {
 	 * @return &lt;U8[n] values&gt;
 	 */
 	public static Secs2Uint8 uint8(BigInteger... values) {
-		return getBuilder().uint8(values);
+		return Secs2Builders.uint8(values);
 	}
 	
 	/**
@@ -678,7 +688,7 @@ public interface Secs2 extends Iterable<Secs2> {
 	 * @return &lt;U8[n] values&gt;
 	 */
 	public static Secs2Uint8 uint8(List<? extends Number> values) {
-		return getBuilder().uint8(values);
+		return Secs2Builders.uint8(values);
 	}
 	
 	/**
@@ -687,7 +697,7 @@ public interface Secs2 extends Iterable<Secs2> {
 	 * @return &lt;F4[0] &gt;
 	 */
 	public static Secs2Float4 float4() {
-		return getBuilder().float4();
+		return Secs2Builders.float4();
 	}
 	
 	/**
@@ -697,7 +707,7 @@ public interface Secs2 extends Iterable<Secs2> {
 	 * @return &lt;F4[n] values&gt;
 	 */
 	public static Secs2Float4 float4(float... values) {
-		return getBuilder().float4(values);
+		return Secs2Builders.float4(values);
 	}
 	
 	/**
@@ -707,7 +717,7 @@ public interface Secs2 extends Iterable<Secs2> {
 	 * @return &lt;F4[n] values&gt;
 	 */
 	public static Secs2Float4 float4(List<? extends Number> values) {
-		return getBuilder().float4(values);
+		return Secs2Builders.float4(values);
 	}
 	
 	/**
@@ -716,7 +726,7 @@ public interface Secs2 extends Iterable<Secs2> {
 	 * @return &lt;F8[0] &gt;
 	 */
 	public static Secs2Float8 float8() {
-		return getBuilder().float8();
+		return Secs2Builders.float8();
 	}
 	
 	/**
@@ -726,7 +736,7 @@ public interface Secs2 extends Iterable<Secs2> {
 	 * @return &lt;F8[n] values&gt;
 	 */
 	public static Secs2Float8 float8(double... values) {
-		return getBuilder().float8(values);
+		return Secs2Builders.float8(values);
 	}
 	
 	/**
@@ -736,7 +746,7 @@ public interface Secs2 extends Iterable<Secs2> {
 	 * @return &lt;F8[n] values&gt;
 	 */
 	public static Secs2Float8 float8(List<? extends Number> values) {
-		return getBuilder().float8(values);
+		return Secs2Builders.float8(values);
 	}
 
 }

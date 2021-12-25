@@ -8,13 +8,12 @@ import com.shimizukenta.secs.gem.AbstractGemConfig;
 /**
  * This abstract class is implementation of communicate config.
  * 
- * <p>
- * To set device-id, {@link #deviceId(int)}<br />
- * To set is-equip, {@link #isEquip(boolean)}<br />
- * To set timeouts, {@link #timeout()}<br />
- * To set gem config, {@link #gem()}<br />
- * To set log-subject-header, {@link #logSubjectHeader(CharSequence)}
- * </p>
+ * <ul>
+ * <li>To set is-equip, {@link #isEquip(boolean)}</li>
+ * <li>To set timeouts, {@link #timeout()}</li>
+ * <li>To set gem config, {@link #gem()}</li>
+ * <li>To set log-subject-header, {@link #logSubjectHeader(CharSequence)}</li>
+ * </ul>
  * 
  * @author kenta-shimizu
  *
@@ -24,35 +23,18 @@ public abstract class AbstractSecsCommunicatorConfig implements Serializable {
 	private static final long serialVersionUID = -8456991094606676409L;
 	
 	private final SecsTimeout timeout = new SecsTimeout();
-	private final NumberProperty deviceId = NumberProperty.newInstance(10);
 	private final BooleanProperty isEquip = BooleanProperty.newInstance(false);
 	
 	private final AbstractGemConfig gem = new AbstractGemConfig() {
+		
 		private static final long serialVersionUID = -3386783271396322749L;
 	};
 	
+	private final StringProperty name = StringProperty.newInstance("");
 	private final StringProperty logSubjectHeader = StringProperty.newInstance("");
 	
 	public AbstractSecsCommunicatorConfig() {
 		/* Nothing */
-	}
-	
-	/**
-	 * Device-ID setter.
-	 * 
-	 * @param id Device-ID
-	 */
-	public void deviceId(int id) {
-		this.deviceId.set(id);
-	}
-	
-	/**
-	 * Device-ID getter
-	 * 
-	 * @return device-id
-	 */
-	public ReadOnlyNumberProperty deviceId() {
-		return deviceId;
 	}
 	
 	/**
@@ -89,6 +71,24 @@ public abstract class AbstractSecsCommunicatorConfig implements Serializable {
 	 */
 	public AbstractGemConfig gem() {
 		return gem;
+	}
+	
+	/**
+	 * Communicator-Name setter.
+	 * 
+	 * @param name Communicator Name
+	 */
+	public void name(CharSequence name) {
+		this.name.set(Objects.requireNonNull(name).toString());
+	}
+	
+	/**
+	 * Communicaotor-Name getter.
+	 * 
+	 * @return Communicator-Name
+	 */
+	public ReadOnlyProperty<String> name() {
+		return name;
 	}
 	
 	/**

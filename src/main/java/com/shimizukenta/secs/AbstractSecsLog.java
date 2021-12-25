@@ -60,7 +60,7 @@ public abstract class AbstractSecsLog implements SecsLog, Serializable {
 		return this.value == null ? Optional.empty() : Optional.of(this.value);
 	}
 	
-	protected void subjectHeader(CharSequence header) {
+	public void subjectHeader(CharSequence header) {
 		synchronized ( this ) {
 			this.subjectHeader = Objects.requireNonNull(header).toString();
 			this.cacheToString = null;
@@ -109,6 +109,10 @@ public abstract class AbstractSecsLog implements SecsLog, Serializable {
 	@Override
 	public Optional<String> optionalValueString() {
 		return value().map(Object::toString);
+	}
+	
+	public Optional<AbstractSecsMessage> optionalAbstractSecsMessage() {
+		return Optional.empty();
 	}
 	
 }

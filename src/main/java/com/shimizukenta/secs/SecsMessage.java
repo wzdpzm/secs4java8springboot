@@ -8,14 +8,15 @@ import com.shimizukenta.secs.secs2.Secs2;
  * <p>
  * SecsMessage contains Stream, Function, WBit, Datta<br />
  * </p>
- * <p>
- * To get SECS-II-Stream-Number, {@link #getStream()}<br />
- * To get SECS-II-Function-Number, {@link #getFunction()}<br />
- * To get SECS-II-WBit, {@link #wbit()}<br />
- * To get SECS-II-Data, {@link #secs2()}<br />
- * To get Header-10-bytes, {@link #header10Bytes()}<br />
- * To get Message-Device-ID, {@link #deviceId()}<br />
- * </p>
+ * <ul>
+ * <li>To get SECS-II-Stream-Number, {@link #getStream()}</li>
+ * <li>To get SECS-II-Function-Number, {@link #getFunction()}</li>
+ * <li>To get SECS-II-WBit, {@link #wbit()}</li>
+ * <li>To get SECS-II-Data, {@link #secs2()}</li>
+ * <li>To get Header-10-bytes, {@link #header10Bytes()}</li>
+ * <li>To get Message-Device-ID, {@link #deviceId()}</li>
+ * <li>To get Message-Session-ID, {@link #sessionId()}</li>
+ * </ul>
  * <p>
  * Instances of this class are immutable.<br />
  * </p>
@@ -42,14 +43,14 @@ public interface SecsMessage {
 	/**
 	 * Returns Message W-Bit.
 	 * 
-	 * @return true if has wbit
+	 * @return true if has W-Bit
 	 */
 	public boolean wbit();
 	
 	/**
-	 * Returns Message SESC-II data.
+	 * Returns Message SESC-II Body Data.
 	 * 
-	 * @return Secs2
+	 * @return Secs2 Body Data
 	 */
 	public Secs2 secs2();
 	
