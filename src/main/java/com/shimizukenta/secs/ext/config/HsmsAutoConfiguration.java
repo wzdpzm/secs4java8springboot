@@ -22,16 +22,18 @@ import org.springframework.util.StringUtils;
 import com.shimizukenta.secs.ext.annotation.SecsMsgListener;
 import com.shimizukenta.secs.hsmsss.HsmsSsCommunicator;
 import com.shimizukenta.secs.hsmsss.HsmsSsCommunicatorConfig;
+import com.shimizukenta.secs.utils.ConfigConstants;
 import com.shimizukenta.secs.utils.SecsUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@ConditionalOnProperty(prefix = "additions.devices.hsms", name = "enabled", havingValue = "true", matchIfMissing = false)
+@ConditionalOnProperty(prefix = ConfigConstants.ADDITIONS_DEVICES_HSMS , name = "enabled", havingValue = "true", matchIfMissing = false)
 @Configuration(proxyBeanMethods = false)
 @Import(SecsConfigurationRegistrar.class)
 @EnableConfigurationProperties(HsmsCplexProps.class)
 public class HsmsAutoConfiguration {
+
 
 	@Autowired
 	private HsmsCplexProps hsmsCplexProps;
@@ -41,7 +43,7 @@ public class HsmsAutoConfiguration {
 
 //	@ConditionalOnProperty(prefix = "additions.devices.hsms", name = "mutiple", havingValue = "false", matchIfMissing = false)
 	@ConditionalOnExpression("${!hsmsCplexProps.mutiple:true}")
-	@Bean
+	@Bean( ConfigConstants.HSMS_SS_COMMUNICATOR)
 	public HsmsSsCommunicator hsmsSsCommunicator() {
 		HsmsProps hsmsProps = hsmsCplexProps.getProps();
 		HsmsSsCommunicator comm = getCommunicator(hsmsProps , null );
@@ -52,8 +54,8 @@ public class HsmsAutoConfiguration {
 
 
 
-	@ConditionalOnProperty(prefix = "additions.devices.hsms" ,name = "mutiple" , havingValue = "true" ,matchIfMissing = false)
-	@Bean
+	@ConditionalOnProperty(prefix = ConfigConstants.ADDITIONS_DEVICES_HSMS ,name = "mutiple" , havingValue = "true" ,matchIfMissing = false)
+	@Bean( ConfigConstants.HSMS_SS_COMMUNICATORS )
 	public   Map<String ,HsmsSsCommunicator> hsmsSsCommunicators(){
 		
 		Map<String, HsmsProps> map = hsmsCplexProps.getSessions();

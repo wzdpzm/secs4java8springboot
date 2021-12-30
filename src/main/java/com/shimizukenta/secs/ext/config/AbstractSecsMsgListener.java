@@ -6,8 +6,9 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 import org.apache.commons.collections4.map.MultiKeyMap;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 
 import com.shimizukenta.secs.SecsException;
 import com.shimizukenta.secs.SecsMessage;
@@ -16,6 +17,7 @@ import com.shimizukenta.secs.SecsSendMessageException;
 import com.shimizukenta.secs.SecsWaitReplyMessageException;
 import com.shimizukenta.secs.hsmsss.HsmsSsCommunicator;
 import com.shimizukenta.secs.secs2.Secs2;
+import com.shimizukenta.secs.utils.ConfigConstants;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -26,23 +28,22 @@ import lombok.extern.slf4j.Slf4j;
  *
  */
 @Slf4j
-public abstract class AbstractSecsMsgListener implements SecsMessageReceiveListener  {
+public abstract class AbstractSecsMsgListener implements SecsMessageReceiveListener ,ApplicationContextAware {
+
 
 	public  static final String HANDLERS_STR = "HANDLERS";
 	
 	/**
 	 * 单会话通讯器
 	 */
-	@Lazy
-	@Autowired(required = false )
-	protected HsmsSsCommunicator hsmsSsCommunicator; 
+	
+	protected static HsmsSsCommunicator hsmsSsCommunicator; 
 	
 	/**
 	 * 多会话预留
 	 */
-	@Lazy
-	@Autowired(required = false )
-	protected Map<String ,HsmsSsCommunicator> hsmsSsCommunicators; 
+	
+	protected static Map<String ,HsmsSsCommunicator> hsmsSsCommunicators; 
 	
 	
 	/**
@@ -105,7 +106,7 @@ public abstract class AbstractSecsMsgListener implements SecsMessageReceiveListe
 	 * @throws SecsException
 	 * @throws InterruptedException
 	 */
-	public  Optional<SecsMessage>  reply(SecsMessage primary,  boolean wbit, Secs2 secs2) throws SecsSendMessageException, SecsWaitReplyMessageException, SecsException, InterruptedException {
+	public static Optional<SecsMessage>  reply(SecsMessage primary,  boolean wbit, Secs2 secs2) throws SecsSendMessageException, SecsWaitReplyMessageException, SecsException, InterruptedException {
 		
 		return reply(hsmsSsCommunicator, primary, wbit, secs2);
 	}
@@ -120,9 +121,25 @@ public abstract class AbstractSecsMsgListener implements SecsMessageReceiveListe
      * @throws SecsException
      * @throws InterruptedException
      */
-    public  Optional<SecsMessage>  reply(SecsMessage primary,  Secs2 secs2) throws SecsSendMessageException, SecsWaitReplyMessageException, SecsException, InterruptedException {
+    public static Optional<SecsMessage>  reply(SecsMessage primary,  Secs2 secs2) throws SecsSendMessageException, SecsWaitReplyMessageException, SecsException, InterruptedException {
 		
 		return reply(hsmsSsCommunicator, primary, false, secs2);
 	}
 
+	@SuppressWarnings("unchecked")
+	@Override
+	public void setApplicationContext(ApplicationContext cxt) throws BeansException {
+		
+		if(cxt.containsBean(ConfigConstants.HSMS_SS_COMMUNICATOR)) {
+			hsmsSsCommunicator = cxt.getBean( HsmsSsCommunicator.class);
+		}
+		
+		if(cxt.containsBean(ConfigConstants.HSMS_SS_COMMUNICATORS)) {
+			hsmsSsCommunicators = (Map<String ,HsmsSsCommunicator>)cxt.getBean(ConfigConstants.HSMS_SS_COMMUNICATORS);
+		}
+		
+
+	}
+
+    
 }
