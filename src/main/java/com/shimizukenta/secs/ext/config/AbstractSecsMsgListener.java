@@ -126,6 +126,35 @@ public abstract class AbstractSecsMsgListener implements SecsMessageReceiveListe
 		return reply(hsmsSsCommunicator, primary, false, secs2);
 	}
 
+	
+	/**
+	  * @Title: send
+	  * @Description: 限定stream function 请求
+	  * @param @param strm
+	  * @param @param func
+	  * @param @param wbit
+	  * @param @param secs2
+	  * @param @return
+	  * @param @throws SecsSendMessageException
+	  * @param @throws SecsWaitReplyMessageException
+	  * @param @throws SecsException
+	  * @param @throws InterruptedException    设定文件
+	  * @return Optional<SecsMessage>    返回类型
+	  * @throws
+	  */
+	public  static Optional<SecsMessage> send(int strm, int func, boolean wbit, Secs2 secs2)
+			throws SecsSendMessageException, SecsWaitReplyMessageException, SecsException, InterruptedException {
+		
+		return hsmsSsCommunicator.send(strm, func, wbit, secs2);
+	}
+	
+	
+	public static Optional<SecsMessage> send(SecsMessage primaryMsg, int strm, int func, boolean wbit) throws SecsSendMessageException, SecsWaitReplyMessageException, SecsException, InterruptedException{
+		
+		return hsmsSsCommunicator.send(primaryMsg, strm, func, wbit);
+	}
+	
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	public void setApplicationContext(ApplicationContext cxt) throws BeansException {

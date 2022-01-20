@@ -17,6 +17,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.util.StringUtils;
 
 import com.shimizukenta.secs.ext.annotation.SecsMsgListener;
@@ -34,10 +35,11 @@ import lombok.extern.slf4j.Slf4j;
 @EnableConfigurationProperties(HsmsCplexProps.class)
 public class HsmsAutoConfiguration {
 
-
+	
 	@Autowired
 	private HsmsCplexProps hsmsCplexProps;
 
+	@Lazy
 	@Autowired(required = false )
 	private List<AbstractSecsMsgListener> list;
 

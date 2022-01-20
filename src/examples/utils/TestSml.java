@@ -1,4 +1,4 @@
-package example4;
+package utils;
 
 import com.shimizukenta.secs.secs2.Secs2;
 import com.shimizukenta.secs.secs2.Secs2Exception;
@@ -6,28 +6,38 @@ import com.shimizukenta.secs.sml.SmlDataItemParser;
 import com.shimizukenta.secs.sml.SmlParseException;
 
 /**
- * Example-3.
- * 
- * <p>
- * This is getting SECS-II value examples.<br />
- * </p>
- * 
- * @author kenta-shimizu
- *
- */
-public class ExampleGetSecs2Value {
+  * @ClassName: TestSml
+  * @Description: sml 文件解析
+  * @author dsy
+  * @date 2022年1月12日 上午10:35:33
+  *
+  */
+public class TestSml {
 
-	public ExampleGetSecs2Value() {
-		/* Nothing */
-	}
-
+	
+	
+	
 	public static void main(String[] args) {
-
-		Secs2 ss = getSs();
 		
-		System.out.println("# Example-SECS2");
-		System.out.println(ss);
-		System.out.println();
+		try {
+			/**
+			 * 将字符串解析成secs
+			 */
+			Secs2 secs2 = parseSs();
+			/**
+			 * 从secs中解析数据
+			 */
+			unParse(secs2) ;
+			
+		} catch (SmlParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	
+	
+	public static void unParse( Secs2 ss) {
 		
 		try {
 			
@@ -102,16 +112,29 @@ public class ExampleGetSecs2Value {
 		}
 	}
 
-	public static void parseSs() throws SmlParseException {
+	
+/**
+  * @Title: parseSs
+  * @Description: 将string 解析成secs
+  * @param @return
+  * @param @throws SmlParseException    设定文件
+  * @return Secs2    返回类型
+  * @throws
+  */
+public static Secs2 parseSs() throws SmlParseException {
 		
+	    Secs2 ss2 = getSs() ;
 		final SmlDataItemParser parser = SmlDataItemParser.newInstance();
 		
-		Secs2 ss = parser.parse("<L <B 0x81><I4 1001><A \"ON FIRE\">>");
+		Secs2 ss = parser.parse( ss2.toString());
 		
 		System.out.println("build by SML");
 		System.out.println(ss);
 		System.out.println();
+		return ss ;
 	}
+
+
 	private static Secs2 getSs() {
 		Secs2 ss = Secs2.list(
 				Secs2.binary((byte)1),	/* 0 */
@@ -135,8 +158,5 @@ public class ExampleGetSecs2Value {
 				);
 		return ss;
 	}
-
-	
-
 
 }

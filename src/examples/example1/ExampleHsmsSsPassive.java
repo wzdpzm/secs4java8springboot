@@ -2,7 +2,6 @@ package example1;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.Optional;
 
 import com.shimizukenta.secs.SecsCommunicator;
 import com.shimizukenta.secs.SecsException;
@@ -15,13 +14,6 @@ import com.shimizukenta.secs.gem.TIACK;
 import com.shimizukenta.secs.hsms.HsmsConnectionMode;
 import com.shimizukenta.secs.hsmsss.HsmsSsCommunicator;
 import com.shimizukenta.secs.hsmsss.HsmsSsCommunicatorConfig;
-<<<<<<< HEAD
-import com.shimizukenta.secs.hsmsss.HsmsSsMessage;
-import com.shimizukenta.secs.hsmsss.HsmsSsMessageType;
-import com.shimizukenta.secs.hsmsss.HsmsSsProtocol;
-import com.shimizukenta.secs.hsmsss.HsmsSsReceiveMessageLog;
-=======
->>>>>>> bf78aa44a34509cfaf6b9bd88093277fe2da9b83
 import com.shimizukenta.secs.secs2.Secs2;
 import com.shimizukenta.secs.secs2.Secs2Exception;
 
@@ -49,7 +41,7 @@ public class ExampleHsmsSsPassive {
 		config.socketAddress(new InetSocketAddress("127.0.0.1", 5000));
 		config.connectionMode(HsmsConnectionMode.PASSIVE);
 		config.sessionId(10);
-		config.isEquip( false );
+		config.isEquip(true);
 		config.notLinktest();
 		config.timeout().t3(45.0F);
 		config.timeout().t6( 5.0F);
@@ -62,27 +54,7 @@ public class ExampleHsmsSsPassive {
 				SecsCommunicator comm = HsmsSsCommunicator.newInstance(config);
 				) {
 			
-			comm.addSecsLogListener(  msg ->{
-				System.out.println("ExampleHsmsSsPassive---SecsLogListener ==============start===========");
-				System.out.println(msg);
-				
-
-				if (msg instanceof HsmsSsReceiveMessageLog) {
-					HsmsSsReceiveMessageLog logInfo = (HsmsSsReceiveMessageLog) msg;
-
-					Optional<Object> value = logInfo.value();
-					if(value.isPresent()) {
-						Object object = value.get();
-						HsmsSsMessage msgDetail = (HsmsSsMessage) object;
-						HsmsSsMessageType hsmsSsMessageType = HsmsSsMessageType.get(msgDetail);
-						System.out.println("ExampleHsmsSsPassive---HsmsSsReceiveMessageLog-- detail====>>>" +  hsmsSsMessageType+ ",detail:==> " +  msgDetail);
-					}
-
-				}
-			
-				
-				
-			});
+			comm.addSecsLogListener(System.out::println);
 			
 			comm.addSecsMessageReceiveListener(msg -> {
 				
@@ -115,19 +87,6 @@ public class ExampleHsmsSsPassive {
 		}
 
 	}
-	
-	private static void printCallStack() {
-        Throwable exception = new Throwable();
-        StackTraceElement[] stackTraceElements = exception.getStackTrace();
-        if (stackTraceElements != null) {
-            for (StackTraceElement element : stackTraceElements) {
-                System.out.println(element.getClassName() + "/t" +element.getFileName() + "/t" + element.getLineNumber()
-                        + "/t" +element.getMethodName());
-                System.out.println("-----------------------------------");
-            }
-        }
-    }
-
 	
 	private static void response(SecsCommunicator comm, SecsMessage msg)
 			throws InterruptedException, SecsException {
