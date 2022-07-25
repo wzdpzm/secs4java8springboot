@@ -5,9 +5,7 @@ package com.shimizukenta.secs.ext.config;
 
 import java.io.Serializable;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
-
-import com.shimizukenta.secs.hsmsss.HsmsSsProtocol;
+import com.shimizukenta.secs.hsms.HsmsConnectionMode;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -58,7 +56,10 @@ public class HsmsProps  implements Serializable {
 	 * 协议:PASSIVE, 	ACTIVE
 	 */
 	@Builder.Default
-	private String protocol = HsmsSsProtocol.PASSIVE.name();
+	private String protocol = HsmsConnectionMode.PASSIVE.name();
+	
+	@Builder.Default
+	private String logSubjectHeader = "";
 
   
 
@@ -79,7 +80,7 @@ public class HsmsProps  implements Serializable {
      * 循环侦测时间: 请求超时时间
      */
 	@Builder.Default
-    private float linktest = 30000.0F;
+    private float linktest = 6.0F;
 	
 	
 	/**
@@ -92,17 +93,23 @@ public class HsmsProps  implements Serializable {
 	private Float t5 = 10.0F;
 	
 	/**
-	 * t8
+	 * t6
 	 */
 	@Builder.Default
 	private Float t6 = 5.0F;
+	
+	@Builder.Default
+	private Float t7 = 10F;
 
   
 	/**
 	 * t8
 	 */
 	@Builder.Default
-	private Float t8 = 6.0F;
+	private Float t8 = 5.0F;
+	
+	@Builder.Default
+	private Float rebindIfPassive = 6.0F;
 
 
 	

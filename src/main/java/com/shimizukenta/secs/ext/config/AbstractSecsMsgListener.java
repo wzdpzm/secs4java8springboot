@@ -11,14 +11,17 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
 import com.shimizukenta.secs.SecsException;
+import com.shimizukenta.secs.SecsLog;
+import com.shimizukenta.secs.SecsLogListener;
 import com.shimizukenta.secs.SecsMessage;
-import com.shimizukenta.secs.SecsMessageReceiveListener;
 import com.shimizukenta.secs.SecsSendMessageException;
 import com.shimizukenta.secs.SecsWaitReplyMessageException;
+import com.shimizukenta.secs.hsms.HsmsMessage;
+import com.shimizukenta.secs.hsms.HsmsReceiveMessageLog;
 import com.shimizukenta.secs.hsmsss.HsmsSsCommunicator;
 import com.shimizukenta.secs.secs2.Secs2;
 import com.shimizukenta.secs.utils.ConfigConstants;
-
+import com.shimizukenta.secs.utils.SecsUtils ;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -28,7 +31,7 @@ import lombok.extern.slf4j.Slf4j;
  *
  */
 @Slf4j
-public abstract class AbstractSecsMsgListener implements SecsMessageReceiveListener ,ApplicationContextAware {
+public abstract class AbstractSecsMsgListener implements SecsLogListener ,ApplicationContextAware {
 
 
 	public  static final String HANDLERS_STR = "HANDLERS";
@@ -49,35 +52,49 @@ public abstract class AbstractSecsMsgListener implements SecsMessageReceiveListe
 	/**
 	 *  本类处理类暂存
 	 */
-	private final MultiKeyMap<Integer, Consumer<SecsMessage>> HANDLERS = new MultiKeyMap<>();
+	private final MultiKeyMap<Integer, Consumer<HsmsMessage>> HANDLERS = new MultiKeyMap<>();
 	
 	
 	
 
-	/**
-	 * 当前消息派发器
-	 * 
-	 * @param event
-	 * @see com.shimizukenta.secs.SecsMessageReceiveListener#received(com.shimizukenta.secs.SecsMessage)
-	 */
+
+
 	@Override
-	public void received(SecsMessage event) {
-		
-		
-		log.debug("get_sf_data:" + event);
-		Consumer<SecsMessage> consumer = HANDLERS.get(event.getStream(), event.getFunction());
-		if (Objects.nonNull(consumer)) {
-			consumer.accept( event );
-		} else {
-			/**
-			 * 没有对应的处理类
-			 */
-			log.error("received_ignore_msg:{}", event.toJson());
+	public void received(SecsLog event) {
+		if (event instanceof HsmsReceiveMessageLog) {
+			HsmsReceiveMessageLog logInfo = (HsmsReceiveMessageLog) event;
+
+			Optional<Object> value = logInfo.value();
+			if(value.isPresent()) {
+				Object object = value.get();
+				HsmsMessage msg = (HsmsMessage) object;
+				if(SecsUtils.dataMessage(msg)) {
+					
+
+					Consumer<HsmsMessage> consumer = HANDLERS.get(msg.getStream(), msg.getFunction());
+					if (Objects.nonNull(consumer)) {
+						new  Thread( () -> consumer.accept( msg )).start();
+					} else {
+						/**
+						 * 没有对应的处理类
+						 */
+						log.error("received_ignore_data_msg:{}",  msg );
+//						try {
+//							hsmsSsCommunicator.send(9, 9 , false) ;
+//						} catch (SecsException | InterruptedException e) {
+//							log.error("error:{}" , e) ;
+//						}
+					}
+				}
+
+			}
+
 		}
 		
-
-
+	
+		
 	}
+
 
 	/** 通过传入的通讯器回复消息
 	 * @param hsmsSsCommunicator

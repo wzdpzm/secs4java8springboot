@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 import com.shimizukenta.secs.ByteArrayProperty;
 import com.shimizukenta.secs.ext.config.HsmsProps;
 import com.shimizukenta.secs.gem.ClockType;
+import com.shimizukenta.secs.hsms.HsmsConnectionMode;
 import com.shimizukenta.secs.hsms.HsmsMessage;
 import com.shimizukenta.secs.hsms.HsmsMessageType;
 import com.shimizukenta.secs.hsmsss.HsmsSsCommunicator;
@@ -19,9 +20,12 @@ import com.shimizukenta.secs.hsmsss.HsmsSsCommunicatorConfig;
 import com.shimizukenta.secs.hsmsss.HsmsSsProtocol;
 
 
+@SuppressWarnings("deprecation")
 public class SecsUtils {
 
 	public final static Map<HsmsSsCommunicator, Boolean> CONNECTION_STATUS_FACTORY = new ConcurrentHashMap<>(16 );
+	
+	public final static Map<HsmsSsCommunicator, Thread> CONNECTION_THREAD_FACTORY = new ConcurrentHashMap<>(16 );
 
 	
 	/**随否是数据报文
@@ -115,13 +119,18 @@ public class SecsUtils {
 		//测试使用
 		config.socketAddress(new InetSocketAddress(props.getHost(), props.getPort()));
 //		config.socketAddress(new InetSocketAddress(props.getHost(), props.getPort()));
-		config.protocol( HsmsSsProtocol.valueOf(props.getProtocol()));
+		config.connectionMode( HsmsConnectionMode.valueOf(props.getProtocol()));
 		
 //		config.sessionId(10);
-//		config.notLinktest();
+     	config.linktest(props.getLinktest());
 //		config.deviceId(props.getDeviceId());
 		config.isEquip(props.getIsEquip());
 		config.timeout().t3( props.getT3());
+		config.timeout().t5( props.getT5());
+		config.timeout().t6( props.getT6());
+		config.timeout().t7( props.getT7());
+		config.timeout().t8( props.getT8());
+		
 		config.gem().mdln("MDLN-A");
 	    config.gem().softrev("000001");
 	    config.gem().clockType(ClockType.A16);
@@ -153,4 +162,27 @@ public class SecsUtils {
 		
 		return CONNECTION_STATUS_FACTORY;
 	}
+
+
+	public static Map<HsmsSsCommunicator, Thread> getConnectionThreadFactory() {
+		return CONNECTION_THREAD_FACTORY;
+	}
+
+
+	
+	/**
+	  * @Title: getConnectionStatus
+	  * @Description: 获得连接状态
+	  * @param @param communicator
+	  * @param @return    设定文件
+	  * @return Boolean    返回类型
+	  * @throws
+	  */
+	public static Boolean getConnectionStatus(HsmsSsCommunicator communicator) {
+		
+		return getConnectionStatusFactory().get( communicator);
+		
+	}
+	
+	
 }
