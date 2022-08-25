@@ -453,3 +453,73 @@ TimeFormat (A[12] or A[16]) can be set from `AbstractSecsCommunicatorConfig#gem#
 ```
 
 See also ["/src/examples/example5/ExampleGem.java"](/src/examples/example5/ExampleGem.java)  
+
+# springboot with intergration 
+
+
+
+   - ## in your  application.yml  
+
+     add :
+
+```yaml
+additions:
+  devices:
+    hsms:
+      enabled: true
+      props:
+        host: 127.0.0.1
+        port: 5000
+        #PASSIVE 被动服务器模式, ACTIVE: 主动客户端模式
+        protocol: ACTIVE
+        isEquip: false 
+       #打印详细的日志
+        logDetail: true
+```
+
+#       demo handler
+
+
+
+
+```java
+@Async
+@Sf(s = 18, f = 71)
+priv@Slf4j
+@SecsMsgListener
+public class DemoHandler extends AbstractSecsMsgListener {
+
+	
+
+	@Async
+	@Sf(s = 18, f = 71)
+	private void demo1(SecsMessage event) {
+
+		log.debug("event_data", event.secs2());
+	   super.reply(event, Secs2.empty());
+		
+	}
+
+	/**
+	 * @param event 收到电子货架上的货物 ; 发送给modbus
+	 */
+	@Sf(s = 1, f = 6)
+	private void demo2(SecsMessage secsMessage) {
+
+		log.debug("event_data:2", secsMessage.secs2());
+	
+			 super.reply(event, Secs2.empty());
+	}
+
+	
+
+	
+
+	
+
+
+}
+```
+
+
+
