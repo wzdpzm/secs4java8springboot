@@ -1,6 +1,8 @@
 package com.shimizukenta.secs;
 
 import java.util.EventListener;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * SecsLog receive Listener.

@@ -16,6 +16,7 @@ import org.apache.commons.collections4.map.MultiKeyMap;
 import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
@@ -106,9 +107,10 @@ public class SecsAnnotationPostProcessor implements BeanPostProcessor {
 	public static Set<Method>  findMethod(Class<?> clazz,@Nullable Class<?>... paramTypes) {
 		Assert.notNull(clazz, "Class must not be null");
 		Class<?> searchType = clazz;
+		
 		Set<Method> methods = new HashSet<>();
 		while (searchType != null) {
-			List<Method> preMethods = Arrays.asList( clazz.getDeclaredMethods())   ;
+			List<Method> preMethods = Arrays.asList( ReflectionUtils.getAllDeclaredMethods( clazz) )   ;
 			List<Method> list = preMethods.parallelStream().filter(method ->{
 				
 				boolean b = !method.getName().equals("received");

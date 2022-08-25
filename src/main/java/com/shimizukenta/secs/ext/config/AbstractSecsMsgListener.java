@@ -3,6 +3,8 @@ package com.shimizukenta.secs.ext.config;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
 import org.apache.commons.collections4.map.MultiKeyMap;
@@ -34,6 +36,11 @@ import lombok.extern.slf4j.Slf4j;
 public abstract class AbstractSecsMsgListener implements SecsLogListener ,ApplicationContextAware {
 
 
+	/**
+	 * 
+	 */
+	public final  static ExecutorService EXEC = Executors.newCachedThreadPool();
+	
 	public  static final String HANDLERS_STR = "HANDLERS";
 	
 	/**
@@ -73,7 +80,8 @@ public abstract class AbstractSecsMsgListener implements SecsLogListener ,Applic
 
 					Consumer<HsmsMessage> consumer = HANDLERS.get(msg.getStream(), msg.getFunction());
 					if (Objects.nonNull(consumer)) {
-						new  Thread( () -> consumer.accept( msg )).start();
+						
+						EXEC.submit(() -> consumer.accept( msg )) ;
 					} else {
 						/**
 						 * 没有对应的处理类

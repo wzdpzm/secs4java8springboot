@@ -21,6 +21,7 @@ import org.springframework.util.StringUtils;
 
 import com.shimizukenta.secs.ext.annotation.SecsMsgListener;
 import com.shimizukenta.secs.hsms.HsmsConnectionMode;
+import com.shimizukenta.secs.hsms.HsmsMessage;
 import com.shimizukenta.secs.hsmsss.HsmsSsCommunicator;
 import com.shimizukenta.secs.hsmsss.HsmsSsCommunicatorConfig;
 import com.shimizukenta.secs.utils.ConfigConstants;
@@ -28,7 +29,7 @@ import com.shimizukenta.secs.utils.SecsUtils;
 
 
 @ConditionalOnProperty(prefix = ConfigConstants.ADDITIONS_DEVICES_HSMS , name = "enabled", havingValue = "true", matchIfMissing = false)
-@Configuration(proxyBeanMethods = false)
+@Configuration(proxyBeanMethods = true )
 @Import(SecsConfigurationRegistrar.class)
 @EnableConfigurationProperties(HsmsCplexProps.class)
 public class HsmsAutoConfiguration {
@@ -101,8 +102,12 @@ public class HsmsAutoConfiguration {
 		 */
 		if(hsmsProps.getLogDetail()) {
 			comm.addSecsLogListener(detail ->{
-				LOGGER.debug("secs2_logs_detail==>:") ;
-				LOGGER.debug(Objects.toString(detail)) ;
+				
+				if( detail instanceof HsmsMessage && SecsUtils.dataMessage( (HsmsMessage)detail )) {
+					LOGGER.debug("secs2_logs_detail==>:") ;
+					LOGGER.debug(Objects.toString(detail)) ;
+				}
+				
 			}) ;
 		}
 

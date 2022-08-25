@@ -6,10 +6,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Configuration;
 
 @Inherited
-@Component
+@Configuration(proxyBeanMethods = true )
 @Target(value = ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface SecsMsgListener {
